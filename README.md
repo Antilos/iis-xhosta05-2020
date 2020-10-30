@@ -7,7 +7,9 @@ This app uses PostgreSql as it's database.
 
 # Development
 Use the local python flask server for development. Push changes to gitlab. Deploy to Heroku only when neccesary, as the process is needlesly long.
-```python app.py```
+```
+python app.py
+```
 or
 ```
 export FLASK_APP=app.py
@@ -17,9 +19,13 @@ While the local server is running, it will automatically detect changes in code 
 
 # Deploy
 Login to heroku
-```heroku login```
+```
+heroku login
+```
 Push changes
-```git push heroku master```
+```
+git push heroku master
+```
 
 **Note**: If not working, contact *xkocal00*
 
