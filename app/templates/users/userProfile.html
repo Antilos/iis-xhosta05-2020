@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{%block content %}
+
+<h1>
+    User Profile
+</h1>
+
+{%if user == None %}
+<p>
+    No such user.
+</p>
+{% else %}
+<p>
+    <b>Name:</b>{{user.username}}
+</p>
+{%endif%}
+
+{%endblock %}
