@@ -31,10 +31,7 @@ git push heroku master
 
 # Database
 This app uses PostgreSql database. The production database is on Heroku, but for development we'll need to use local databases.
+This is ok, as the app uses SQLAlchemy to abstract database operations. The correct database will be chosen using local variables
 
 ## Tutorial
-Download [Postgres 12](https://www.postgresql.org/download/). Ideally get pgAdmin. Test if you can connect to the database by running `psql`.
-
-If you get complaints about nonexistent databases, run `createdb mydb`. I used "isa-local" as the db name, try to stick to that to simplify script sharing.
-
-If you can't log in, create new user in pgAdmin. I used "admin4isa" as password, I think we should stick to that.
+Use SQLite for local development. Set SQLALCHEMY_DATABASE_URI configuration option to "sqlite:///path/to/db"

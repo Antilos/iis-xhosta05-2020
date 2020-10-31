@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{%block content %}
+
+<h1>
+    All Registered Users
+</h1>
+
+{%for user in users%}
+<p>
+    {{user}}
+</p>
+{%endfor%}
+
+{%endblock %}
