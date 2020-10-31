@@ -16,7 +16,7 @@ def create_app(test_config=None):
     
     #set config
     try:
-        environment = os.environ["ENVIRONMENT"]
+        environment = os.environ["APP_ENVIRONMENT"]
     except KeyError:
         environment = "default"
     
