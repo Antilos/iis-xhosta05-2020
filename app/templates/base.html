@@ -1,29 +1,43 @@
 <!doctype html>
 <title>{% block title %}{% endblock %} - Flaskr</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-<nav>
+
+<!--Top Header-->
+<header>
   <h1>isa-xhosta05-2020</h1>
   {% if current_user.is_authenticated %}
-    <p>
-      Hello {{current_user.username}}
-    </p>
+  <p>
+    Hello {{current_user.username}}
+  </p>
   {% endif %}
-  <ul>
-    {% if current_user.is_authenticated %}
-      <li><span>{{ current_user.username }}</span>
-      <li><a href="{{ url_for('auth.logout') }}">Log Out</a>
+  {% block header %}{% endblock %}
+</header>
+  
+<!--Top Navigation-->
+<nav class="top_nav">
+  <a href="/index">Home</a>|
+  {% if current_user.is_authenticated %}
+      <span>{{ current_user.username }}</span>|
+      <a href="{{ url_for('users.userProfile', username=current_user.username) }}">Profile</a>|
+      <a href="{{ url_for('auth.logout') }}">Log Out</a>
     {% else %}
-      <li><a href="{{ url_for('auth.register') }}">Register</a>
-      <li><a href="{{ url_for('auth.login') }}">Log In</a>
+      <a href="{{ url_for('auth.register') }}">Register</a>|
+      <a href="{{ url_for('auth.login') }}">Log In</a>
     {% endif %}
-  </ul>
 </nav>
+
+<!--Side Navigation-->
+<aside class="side_nav">
+  {%block side_nav %}{% endblock %}
+</aside>
+
+<!--Main Website Body-->
 <section class="content">
-  <header>
-    {% block header %}{% endblock %}
-  </header>
+  <!--Flashed Messages-->
   {% for message in get_flashed_messages() %}
     <div class="flash">{{ message }}</div>
   {% endfor %}
+
+  <!--Content Proper-->
   {% block content %}{% endblock %}
 </section>

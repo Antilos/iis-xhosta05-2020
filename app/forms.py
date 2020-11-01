@@ -1,8 +1,9 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, ValidationError
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, ValidationError, TextAreaField, SelectField
 from wtforms.validators import DataRequired, EqualTo
 
 from app.models import User
+from app.visibility import Visibility
 
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
@@ -20,3 +21,21 @@ class RegisterForm(FlaskForm):
         user = User.query.filter_by(username=username.data).first()
         if user is not None:
             raise ValidationError('Username already in use.')
+
+class ProfileEditForm(FlaskForm):
+    #profile description
+    description = TextAreaField('description')
+
+    #profile visibility
+    visibility = [(value, label) for label, value in Visibility.__members__.items()]
+    profileVisibility = SelectField('Profile Visibility', choices=visibility)
+
+    submitProfileEdit = SubmitField('Submit profile edit')
+
+class PasswordChangeForm(FlaskForm):
+    #passwords
+    oldPassword = PasswordField('Old Password', validators=[DataRequired()])
+    newPassword = PasswordField('New Password', validators=[DataRequired()])
+    newPassword2 = PasswordField('Repeat new password', validators=[DataRequired(), EqualTo('newPassword')])
+
+    submitPasswordChange = SubmitField('Change Password')

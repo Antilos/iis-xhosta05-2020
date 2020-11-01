@@ -3,17 +3,20 @@
 {%block content %}
 
 <h1>
-    User Profile
+    {{user.username}}'s Profile
 </h1>
 
-{%if user == None %}
-<p>
-    No such user.
-</p>
-{% else %}
 <p>
     <b>Name:</b>{{user.username}}
 </p>
+
+<p>
+    <b>Description:</b><br>
+    {{user.profile_desc}}
+</p>
+
+{%if user == current_user%}
+<p><a href="{{url_for('users.editUserProfile')}}">Edit profile</a></p>
 {%endif%}
 
 {%endblock %}

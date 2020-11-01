@@ -31,7 +31,7 @@ class User(UserMixin, db.Model):
     profile_desc = db.Column(db.Text)
     profile_visibility = db.Column(db.Integer, nullable=False, default=0)
 
-    owned_groups = db.relationship('Group', backref='owner', foreign_keys='group.owner_id', lazy='dynamic')
+    owned_groups = db.relationship('Group', backref='owner', lazy='dynamic')
     moderated_groups = db.relationship('Group', secondary=group_moderators_assoc, backref='moderators')
     joined_groups = db.relationship('Group', secondary=group_members_assoc, backref='members')
 
