@@ -1,6 +1,9 @@
 ::set environment vars
 set FLASK_APP=isa-xhosta05-2020
 set FLASK_ENV=development
+
+set SECRET_KEY=dev
+
 ::set APP_SETTINGS=config.DevelopmentConfig
 set DATABASE_URL="sqlite:///C:\\Users\\jakko\\DocsWrapper\\Schoolwork\\IIS\\isa-xhosta05-2020-heroku\\instance\\app.db"
 ::
