@@ -147,3 +147,5 @@ isaEnv
 #migrations
 /migrations
 
+requirements_copy.txt
+
