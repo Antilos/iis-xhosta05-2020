@@ -1,1 +1,1 @@
-web: gunicorn isa-xhosta05-2020:app
+web: gunicorn isa-xhosta05-2020:main_app
