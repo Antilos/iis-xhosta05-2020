@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>{{thread.subject}}</h2>
+
+<!--New post-->
+<h3>New Post</h3>
+<form action="{{url_for('posts.createPost', threadId=thread.id)}}", method="POST">
+    {{ createPostForm.hidden_tag() }}
+    <p>
+        {{createPostForm.body.label}}<br>
+        {{createPostForm.body()}}<br>
+    </p>
+    <p>{{createPostForm.submit()}}</p>
+</form>
+
+<!--Posts-->
+{% for post in posts %}
+
+    <div class="post">
+        <div class="post.author">
+            {{post.author.username}}
+        </div>
+        <div class="post.body">
+            {{post.body}}
+        </div>
+        <div class="post.ranking">
+            {{post.ranking}}
+        </div>
+    </div>
+
+{%endfor%}
+
+<!--Navigation links to next/prev page-->
+{% include 'utility/paginationNav.html' %}
+
+{%endblock%}

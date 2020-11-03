@@ -1,19 +1,23 @@
 {% extends "base.html" %}
 
+
 {%block content %}
+    <h1>
+        {{user.username}}'s Profile
+    </h1>
 
-<h1>
-    User Profile
-</h1>
+    <p>
+        <b>Name:</b>{{user.username}}
+    </p>
 
-{%if user == None %}
-<p>
-    No such user.
-</p>
-{% else %}
-<p>
-    <b>Name:</b>{{user.username}}
-</p>
-{%endif%}
+    <p>
+        <b>Description:</b><br>
+        {{user.profile_desc}}
+    </p>
+
+    {%if user == current_user%}
+        <p><a href="{{url_for('users.editUserProfile')}}">Edit profile</a></p>
+    {%endif%}
 
 {%endblock %}
+

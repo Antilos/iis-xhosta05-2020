@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Edit Profile</h1>
+    <form action="{{url_for('users.editUserProfile')}}" method="post">
+        {{ profileEditForm.hidden_tag() }}
+        <p>
+            {{ profileEditForm.description.label }}<br>
+            {{ profileEditForm.description(cols=50, rows=4) }}<br>
+            {% for error in profileEditForm.description.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+
+        <p>
+            {{ profileEditForm.profileVisibility.label }} {{ profileEditForm.profileVisibility() }}
+        </p>
+
+        <p>{{ profileEditForm.submitProfileEdit() }}</p>
+
+    </form>
+
+    <form action="{{url_for('users.changePassword')}}" method="post">
+        <p><b>Change Password</b></p>
+        <p>
+            {{ passwordChangeForm.oldPassword.label }} {{ passwordChangeForm.oldPassword() }}<br>
+            {% for error in passwordChangeForm.oldPassword.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+
+            {{ passwordChangeForm.newPassword.label }} {{ passwordChangeForm.newPassword() }}<br>
+            {% for error in passwordChangeForm.newPassword.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+
+            {{ passwordChangeForm.newPassword2.label }} {{ passwordChangeForm.newPassword2() }}<br>
+            
+            {% for error in passwordChangeForm.newPassword2.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+
+        <p>{{ passwordChangeForm.submitPasswordChange() }}</p>
+    </form>
+{% endblock %}

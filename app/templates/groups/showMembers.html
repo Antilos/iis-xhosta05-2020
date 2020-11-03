@@ -1,0 +1,14 @@
+{% extends "groups/showGroup.html" %}
+
+{% block content %}
+
+{% for member in members %}
+
+    <p><a href="{{url_for('users.userProfile', username=member.username)}}">{{member.username}}</a></p>
+
+    {% include "utility/paginationNav.html" %}
+
+{% endfor %}
+
+{%endblock%}
+
