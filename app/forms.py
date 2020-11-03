@@ -27,7 +27,7 @@ class ProfileEditForm(FlaskForm):
     description = TextAreaField('description')
 
     #profile visibility
-    visibility = [(value, label) for label, value in Visibility.__members__.items()]
+    visibility = [(int(value), label) for label, value in Visibility.__members__.items()]
     profileVisibility = SelectField('Profile Visibility', choices=visibility)
 
     submitProfileEdit = SubmitField('Submit profile edit')
@@ -43,7 +43,7 @@ class PasswordChangeForm(FlaskForm):
 class CreateGroupForm(FlaskForm):
     name = StringField('Group Name', validators=[DataRequired(), Length(min=0, max=160)])
     description = TextAreaField('Group Description')
-    visibility = [(value, label) for label, value in Visibility.__members__.items()]
+    visibility = [(int(value), label) for label, value in Visibility.__members__.items()]
     groupVisibility = SelectField('Group Visibility', choices=visibility)
     joinPermission = SelectField('Group Join Permission', choices=[(0,"Public"), (1, "Moderator must approve")])
 

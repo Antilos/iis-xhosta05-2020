@@ -1,6 +1,6 @@
-from enum import Enum
+from enum import IntEnum
 
-class Visibility(Enum):
+class Visibility(IntEnum):
     PUBLIC = 0
     REGISTERED = 1
     FRIEND_GROUP = 2

@@ -34,5 +34,12 @@ def createGroup():
 
 @bp.route('/<groupName>')
 def showGroup(groupName):
-    group = Group.query.filter_by(name=groupName).first()
-    return render_template("groups/showGroup.html", template=groupName, group=group, threads=group.threads.all())
+    #get the group if it exists
+    group = Group.query.filter_by(name=groupName).first_or_404()
+
+    #verify current user has permission to view this profile
+    print(group.visibility)
+    if current_user.hasPermissionToViewGroup(group):
+        return render_template("groups/showGroup.html", title=groupName, group=group, threads=group.threads.all())
+    else:
+        return render_template('groups/unauthorizedGroupView.html', title="Unauthorized Group View", group=group)

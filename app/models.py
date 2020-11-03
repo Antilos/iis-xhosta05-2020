@@ -38,8 +38,8 @@ class User(UserMixin, db.Model):
     profile_visibility = db.Column(db.Integer, nullable=False, default=0)
 
     owned_groups = db.relationship('Group', backref='owner', lazy='dynamic')
-    moderated_groups = db.relationship('Group', secondary=group_moderators_assoc, backref='moderators', lazy='dynamic')
-    joined_groups = db.relationship('Group', secondary=group_members_assoc, backref='members', lazy='dynamic')
+    moderated_groups = db.relationship('Group', secondary=group_moderators_assoc, backref=db.backref('moderators', lazy='dynamic'), lazy='dynamic')
+    joined_groups = db.relationship('Group', secondary=group_members_assoc, backref=db.backref('members', lazy='dynamic'), lazy='dynamic')
 
     opened_threads = db.relationship('Thread', backref='opener', lazy='dynamic')
 
@@ -64,10 +64,11 @@ class User(UserMixin, db.Model):
         return group.owner.id == self.id
 
     def isModeratorOf(self, group):
-        return (group.owner.id == self.id) or group.moderators.query.filter_by(id=self.id).first()
+        return (group.owner.id == self.id) or group.moderators.filter_by(id=self.id).first()
 
     def isMemberOf(self, group):
-        return False or group.members.query.filter_by(id=self.id).first()
+        
+        return False or self == group.owner or group.members.filter_by(id=self.id).first()
 
     def isMemberOfFriendGroupOf(self, group):
         #TODO: too many queries, needs to be optimized
@@ -95,7 +96,7 @@ class User(UserMixin, db.Model):
         return \
             (visibility == Visibility.PUBLIC) or \
             (visibility == Visibility.REGISTERED) or \
-            (visibility == visibility.Group and self.isInMutualGroup(user)) or \
+            (visibility == visibility.GROUP and self.isInMutualGroup(user)) or \
             (visibility == visibility.FRIEND_GROUP and ((self.isInMutualGroup(user)) or self.isInMutualFriendGroup(user)))
 
     def hasPublicProfile(self):

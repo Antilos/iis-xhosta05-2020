@@ -64,4 +64,6 @@ def create_app(test_config=None):
     app.register_blueprint(threads.bp)
     app.register_blueprint(posts.bp)
 
+    login.login_view='auth.login'
+
     return app

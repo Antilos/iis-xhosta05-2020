@@ -14,8 +14,14 @@ def allUsers():
 
 @bp.route('/<username>/profile')
 def userProfile(username):
+    #get the user if it exists
     user = User.query.filter_by(username=username).first_or_404()
-    return render_template('users/userProfile.html', title="User Profile", user = user)
+    
+    #verify current user has permission to view this profile
+    if current_user.hasPermissionToViewUser(user):
+        return render_template('users/userProfile.html', title="User Profile", user = user)
+    else:
+        return render_template('users/unauthorizedProfileView.html', title="Unauthorized Profile View", user=user)
 
 @bp.route('/profile/edit/editProfile', methods=["GET","POST"])
 @login_required

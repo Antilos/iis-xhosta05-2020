@@ -146,9 +146,6 @@ cython_debug/
 #virtual env
 isaEnv
 
-#migrations
-/migrations
-
 #other
 requirements_copy.txt
 envInit.bat

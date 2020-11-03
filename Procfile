@@ -1,1 +1,1 @@
-web: gunicorn iis-xhosta05-2020:main_app
+web: flask db upgrade; gunicorn iis-xhosta05-2020:main_app
