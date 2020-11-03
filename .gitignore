@@ -137,7 +137,9 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
+####################
 ##xkocal00 ignores##
+####################
 #vs code
 /.vscode
 
@@ -147,5 +149,7 @@ isaEnv
 #migrations
 /migrations
 
+#other
 requirements_copy.txt
+envInit.bat
 
