@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 26dbbfdd6fc9
+Revision ID: a934bd1ccf34
 Revises: 
-Create Date: 2020-11-03 15:23:25.249994
+Create Date: 2020-11-03 18:38:49.859288
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '26dbbfdd6fc9'
+revision = 'a934bd1ccf34'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -31,9 +31,9 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=160), nullable=True),
     sa.Column('description', sa.Text(), nullable=True),
-    sa.Column('founded_timestamp', sa.DateTime(), nullable=False),
+    sa.Column('created_timestamp', sa.DateTime(), nullable=False),
     sa.Column('visibility', sa.Integer(), nullable=False),
-    sa.Column('join_permission', sa.Integer(), nullable=False),
+    sa.Column('is_open', sa.Boolean(), nullable=False),
     sa.Column('owner_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['owner_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id'),
@@ -45,6 +45,16 @@ def upgrade():
     sa.ForeignKeyConstraint(['group1_id'], ['group.id'], ),
     sa.ForeignKeyConstraint(['group2_id'], ['group.id'], ),
     sa.PrimaryKeyConstraint('group1_id', 'group2_id')
+    )
+    op.create_table('group__join__request',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('timestamp', sa.DateTime(), nullable=False),
+    sa.Column('status', sa.Integer(), nullable=False),
+    sa.Column('group_id', sa.Integer(), nullable=True),
+    sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['group_id'], ['group.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.PrimaryKeyConstraint('id')
     )
     op.create_table('group_members_assoc',
     sa.Column('user_id', sa.Integer(), nullable=False),
@@ -118,6 +128,7 @@ def downgrade():
     op.drop_table('thread')
     op.drop_table('group_moderators_assoc')
     op.drop_table('group_members_assoc')
+    op.drop_table('group__join__request')
     op.drop_table('friend_groups_assoc')
     op.drop_table('group')
     op.drop_index(op.f('ix_user_username'), table_name='user')

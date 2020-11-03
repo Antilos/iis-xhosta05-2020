@@ -3,7 +3,7 @@ from wtforms import StringField, PasswordField, BooleanField, SubmitField, Valid
 from wtforms.validators import DataRequired, EqualTo, Length
 
 from app.models import *
-from app.visibility import Visibility
+from app.enums import Visibility, JoinPermission, getListForForm
 
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
@@ -43,9 +43,10 @@ class PasswordChangeForm(FlaskForm):
 class CreateGroupForm(FlaskForm):
     name = StringField('Group Name', validators=[DataRequired(), Length(min=0, max=160)])
     description = TextAreaField('Group Description')
-    visibility = [(int(value), label) for label, value in Visibility.__members__.items()]
+    visibility = getListForForm(Visibility)
+    joinPermission = getListForForm(JoinPermission)
     groupVisibility = SelectField('Group Visibility', choices=visibility)
-    joinPermission = SelectField('Group Join Permission', choices=[(0,"Public"), (1, "Moderator must approve")])
+    isOpen = BooleanField('Is Open?', default=True)
 
     submit = SubmitField('Create Group')
 

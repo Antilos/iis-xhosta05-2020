@@ -14,11 +14,25 @@
         </p>
 
     {%endfor%}
+
+    {% include 'utility/paginationNav.html' %}
 {%endblock%}
 
 {% block right_nav %}
-    {% if current_user.hasPermissionToViewGroup(group) or (current_user.is_anonymous and group.isPublic())%}
         <a href="{{url_for('threads.createThread', groupName=group.name)}}">Create Thread</a>
-    {% endif %}
+        <a href="{{url_for('groups.showMembers', groupName=group.name)}}">Members</a>
+        {% if current_user.is_authenticated %}
+            {% if not current_user.isMemberOf(group) %}
+                <a href="{{url_for('groups.joinGroup', groupName=group.name)}}">Join</a>
+            {% endif %}    
 
+            {% if not current_user.isModeratorOf(group) %}
+                <a href="{{url_for('groups.requestPromotionToModerator', groupName=group.name)}}">Request Promotion To Moderator</a>
+            {% endif %}
+
+            {% if current_user.isModeratorOf(group) %}
+                <a href="{{url_for('groups.showJoinRequests', groupName=group.name)}}">Pending Join Requests</a>
+                <a href="{{url_for('groups.showModeratorPromotionRequests', groupName=group.name)}}">Pending Moderator Promotion Requests</a>
+            {% endif %}
+        {% endif %}
 {%endblock%}

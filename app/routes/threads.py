@@ -11,13 +11,18 @@ bp = Blueprint('threads', __name__, url_prefix="/threads")
 def showThread(threadId):
     postsPerPage = 2
     page = request.args.get('page', 1, type=int)
-
+    
     thread = Thread.query.filter_by(id=threadId).first()
-    posts = thread.getPostsChronological().paginate(page, postsPerPage, False)
-    nextUrl = url_for('threads.showThread', threadId=threadId, page=posts.next_num) if posts.has_next else None
-    prevUrl = url_for('threads.showThread', threadId=threadId, page=posts.prev_num) if posts.has_prev else None
 
-    return render_template("threads/showThread.html", title=f"{thread.group.name}|{thread.subject}", thread=thread, posts=posts.items, nextUrl=nextUrl, prevUrl=prevUrl, createPostForm=CreatePostForm())
+    #verify current user has permission to view this profile
+    if current_user.hasPermissionToViewGroup(thread.group):
+        posts = thread.getPostsChronological().paginate(page, postsPerPage, False)
+        nextUrl = url_for('threads.showThread', threadId=threadId, page=posts.next_num) if posts.has_next else None
+        prevUrl = url_for('threads.showThread', threadId=threadId, page=posts.prev_num) if posts.has_prev else None
+
+        return render_template("threads/showThread.html", title=f"{thread.group.name}|{thread.subject}", thread=thread, posts=posts.items, nextUrl=nextUrl, prevUrl=prevUrl, createPostForm=CreatePostForm())
+    else:
+        return render_template('groups/unauthorizedGroupView.html', title="Unauthorized Group View", group=thread.group)
 
 @bp.route("/<groupName>/createThread", methods=["GET","POST"])
 def createThread(groupName):

@@ -2,7 +2,7 @@ from app import db, login
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
-from app.visibility import Visibility
+from app.enums import Visibility, JoinPermission, GroupJoinRequestStatus
 
 group_moderators_assoc = db.Table('group_moderators_assoc',
     db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
@@ -41,6 +41,8 @@ class User(UserMixin, db.Model):
     moderated_groups = db.relationship('Group', secondary=group_moderators_assoc, backref=db.backref('moderators', lazy='dynamic'), lazy='dynamic')
     joined_groups = db.relationship('Group', secondary=group_members_assoc, backref=db.backref('members', lazy='dynamic'), lazy='dynamic')
 
+    group_join_requests = db.relationship('Group_Join_Request', backref='user', lazy='dynamic')
+
     opened_threads = db.relationship('Thread', backref='opener', lazy='dynamic')
 
     authored_posts = db.relationship('Post', backref='author', lazy='dynamic')
@@ -68,7 +70,7 @@ class User(UserMixin, db.Model):
 
     def isMemberOf(self, group):
         
-        return False or self == group.owner or group.members.filter_by(id=self.id).first()
+        return False or group.members.filter_by(id=self.id).first()
 
     def isMemberOfFriendGroupOf(self, group):
         #TODO: too many queries, needs to be optimized
@@ -110,9 +112,11 @@ class Group(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(160), unique=True)
     description = db.Column(db.Text)
-    founded_timestamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    created_timestamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     visibility = db.Column(db.Integer, nullable=False, default=0)
-    join_permission = db.Column(db.Integer, nullable=False, default=0)
+    is_open = db.Column(db.Boolean, nullable=False, default=True)
+
+    join_requests = db.relationship('Group_Join_Request', backref='group', lazy='dynamic')
 
     friends = db.relationship(
         'Group',
@@ -127,6 +131,15 @@ class Group(db.Model):
 
     def isPublic(self):
         return self.visibility == Visibility.PUBLIC
+
+    def isOpen(self):
+        return self.is_open
+
+    def addMember(self, user):
+        self.members.append(user)
+
+    def getThreadsChronological(self):
+        return self.threads.order_by(Thread.opened_timestamp.desc())
 
 class Thread(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -166,3 +179,36 @@ class Comment(db.Model):
 
     author_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     post_id = db.Column(db.Integer, db.ForeignKey('post.id'))
+
+class Group_Join_Request(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    timestamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    status = db.Column(db.Integer, nullable=False, default=GroupJoinRequestStatus.UNPROCESSED)
+
+    group_id = db.Column(db.Integer, db.ForeignKey('group.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+    def approve(self):
+        """Approve this request and add the user to the group
+        Return
+        ------
+        bool: True if processed succesfully, False if the request is already processed
+        """
+        if self.status == GroupJoinRequestStatus.UNPROCESSED:
+            self.status = GroupJoinRequestStatus.APPROVED
+            self.group.addMember(self.user)
+            return True
+        else:
+            return False
+
+    def approve(self):
+        """Denies this request
+        Return
+        ------
+        bool: True if processed succesfully, False if the request is already processed
+        """
+        if self.status == GroupJoinRequestStatus.UNPROCESSED:
+            self.status = GroupJoinRequestStatus.DENIED
+            return True
+        else:
+            return False
