@@ -1,0 +1,22 @@
+.flex-container{
+    display: flex;
+}
+
+nav{
+    border-bottom-style: double;
+    margin: 10px;
+    background-color:silver;
+}
+
+aside{
+    border-style: solid;
+    width:auto;
+    margin: 10px;
+    background-color:silver;
+}
+
+section.content{
+    width:auto;
+    margin: 10px;
+    background-color:white;
+}

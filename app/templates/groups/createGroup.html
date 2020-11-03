@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{%block content %}
+
+<form action="" method="post">
+    {{ form.hidden_tag() }}
+    <p>
+        {{form.name.label}}<br>
+        {{form.name()}}
+    </p>
+    <p>
+        {{form.description.label}}<br>
+        {{form.description()}}
+    </p>
+    <p>
+        {{form.groupVisibility.label}}<br>
+        {{form.groupVisibility()}}
+    </p>
+    <p>
+        {{form.joinPermission.label}}<br>
+        {{form.joinPermission()}}
+    </p>
+
+    <p>{{form.submit()}}</p>
+</form>>
+
+{%endblock %}

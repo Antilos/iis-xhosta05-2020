@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>{{group.name}}</h1>
+
+    <p>{{group.description}}</p>
+
+    <h2>Threads</h2>
+
+    {% for thread in threads %}
+    <!--mnau mnau mnau mnau mnau mnau mnau mnau -->
+        <p>
+            <a href="{{url_for('threads.showThread', threadId=thread.id)}}">{{thread.subject}}</a>
+        </p>
+
+    {%endfor%}
+{%endblock%}
+
+{% block right_nav %}
+    {% if current_user.hasPermissionToViewGroup(group) or (current_user.is_anonymous and group.isPublic())%}
+        <a href="{{url_for('threads.createThread', groupName=group.name)}}">Create Thread</a>
+    {% endif %}
+
+{%endblock%}

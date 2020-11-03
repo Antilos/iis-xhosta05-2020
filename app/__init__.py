@@ -57,8 +57,11 @@ def create_app(test_config=None):
         return render_template("index.html", title="Home Page")
 
     #register blueprints
-    from .routes import auth, users
+    from .routes import auth, users, groups, threads, posts
     app.register_blueprint(auth.bp)
     app.register_blueprint(users.bp)
+    app.register_blueprint(groups.bp)
+    app.register_blueprint(threads.bp)
+    app.register_blueprint(posts.bp)
 
     return app
