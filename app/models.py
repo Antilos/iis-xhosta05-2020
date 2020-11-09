@@ -2,7 +2,7 @@ from app import db, login
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
-from app.enums import Visibility, JoinPermission, GroupJoinRequestStatus
+from app.enums import Visibility, JoinPermission, RequestStatus
 
 group_moderators_assoc = db.Table('group_moderators_assoc',
     db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
@@ -35,13 +35,16 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(128))
 
     profile_desc = db.Column(db.Text)
-    profile_visibility = db.Column(db.Integer, nullable=False, default=0)
+    profile_visibility = db.Column(db.Integer, nullable=False, default=Visibility.PUBLIC)
+
+    is_admin = db.Column(db.Boolean, nullable=False, default=False)
 
     owned_groups = db.relationship('Group', backref='owner', lazy='dynamic')
     moderated_groups = db.relationship('Group', secondary=group_moderators_assoc, backref=db.backref('moderators', lazy='dynamic'), lazy='dynamic')
     joined_groups = db.relationship('Group', secondary=group_members_assoc, backref=db.backref('members', lazy='dynamic'), lazy='dynamic')
 
     group_join_requests = db.relationship('Group_Join_Request', backref='user', lazy='dynamic')
+    group_moderator_promotion_requests = db.relationship('Group_Moderator_Promotion_Request', backref='user', lazy='dynamic')
 
     opened_threads = db.relationship('Thread', backref='opener', lazy='dynamic')
 
@@ -88,6 +91,7 @@ class User(UserMixin, db.Model):
     def hasPermissionToViewGroup(self, group):
         visibility = group.visibility
         return \
+            self.is_admin or \
             (visibility == Visibility.PUBLIC) or \
             (visibility == Visibility.REGISTERED) or \
             (visibility == Visibility.GROUP and self.isMemberOf(group)) or \
@@ -96,17 +100,35 @@ class User(UserMixin, db.Model):
     def hasPermissionToViewUser(self, user):
         visibility = user.profile_visibility
         return \
+            self.is_admin or \
             (visibility == Visibility.PUBLIC) or \
             (visibility == Visibility.REGISTERED) or \
-            (visibility == visibility.GROUP and self.isInMutualGroup(user)) or \
-            (visibility == visibility.FRIEND_GROUP and ((self.isInMutualGroup(user)) or self.isInMutualFriendGroup(user)))
+            (visibility == Visibility.GROUP and self.isInMutualGroup(user)) or \
+            (visibility == Visibility.FRIEND_GROUP and ((self.isInMutualGroup(user)) or self.isInMutualFriendGroup(user)))
 
     def hasPublicProfile(self):
         return self.profile_visibility == Visibility.PUBLIC
 
+    def isAdmin(self):
+        return self.is_admin
+
 @login.user_loader
 def load_user(id):
     return User.query.get(int(id))
+
+def getUsersByVisibility(visibility:Visibility):
+    if not visibility in Visibility.__members__.values():
+        raise KeyError(f"{visibility} is not a valid profile visibility category.")
+    else:
+        return User.query.filter_by(profile_visibility=visibility)
+
+def makeUserAdmin(user:User):
+    if not user.is_admin:
+        user.is_admin=True
+        return True
+    else:
+        return False
+    
 
 class Group(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -117,6 +139,7 @@ class Group(db.Model):
     is_open = db.Column(db.Boolean, nullable=False, default=True)
 
     join_requests = db.relationship('Group_Join_Request', backref='group', lazy='dynamic')
+    moderator_promotion_requests = db.relationship('Group_Moderator_Promotion_Request', backref='group', lazy='dynamic')
 
     friends = db.relationship(
         'Group',
@@ -135,8 +158,35 @@ class Group(db.Model):
     def isOpen(self):
         return self.is_open
 
+    def isMember(self, user):
+        return self.members.filter_by(id=user.id).count() > 0
+
     def addMember(self, user):
-        self.members.append(user)
+        if not isMember(user):
+            self.members.append(user)
+
+    def removeMember(self, user):
+        if isMember(user):
+            self.members.remove(user)
+
+    def isModerator(self, user):
+        return self.owner_id == user.id or self.moderators.filter_by(id=user.id).count() > 0
+
+    def addModerator(self, user):
+        if not isModerator(user):
+            self.moderators.append(user)
+
+    def removeModerator(self, user):
+        if isModerator(user):
+            self.moderators.remove(user)
+
+    def createJoinRequest(self, user):
+        if not self.join_requests.filter_by(user_id=user.id).count > 0:
+            self.join_requests.append(Group_Join_Request(user=user, group=self))
+
+    def createModeratorPromotionRequest(self, user):
+        if not self.moderator_promotion_requests.filter_by(user_id=user.id).count > 0:
+            self.moderator_promotion_requests.append(Group_Moderator_Promotion_Request(user=user, group=self))
 
     def getThreadsChronological(self):
         return self.threads.order_by(Thread.opened_timestamp.desc())
@@ -183,7 +233,7 @@ class Comment(db.Model):
 class Group_Join_Request(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     timestamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    status = db.Column(db.Integer, nullable=False, default=GroupJoinRequestStatus.UNPROCESSED)
+    status = db.Column(db.Integer, nullable=False, default=RequestStatus.UNPROCESSED)
 
     group_id = db.Column(db.Integer, db.ForeignKey('group.id'))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
@@ -194,21 +244,54 @@ class Group_Join_Request(db.Model):
         ------
         bool: True if processed succesfully, False if the request is already processed
         """
-        if self.status == GroupJoinRequestStatus.UNPROCESSED:
-            self.status = GroupJoinRequestStatus.APPROVED
+        if self.status == RequestStatus.UNPROCESSED:
+            self.status = RequestStatus.APPROVED
             self.group.addMember(self.user)
             return True
         else:
             return False
 
-    def approve(self):
+    def deny(self):
         """Denies this request
         Return
         ------
         bool: True if processed succesfully, False if the request is already processed
         """
-        if self.status == GroupJoinRequestStatus.UNPROCESSED:
-            self.status = GroupJoinRequestStatus.DENIED
+        if self.status == RequestStatus.UNPROCESSED:
+            self.status = RequestStatus.DENIED
+            return True
+        else:
+            return False
+
+class Group_Moderator_Promotion_Request(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    timestamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    status = db.Column(db.Integer, nullable=False, default=RequestStatus.UNPROCESSED)
+
+    group_id = db.Column(db.Integer, db.ForeignKey('group.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+    def approve(self):
+        """Approve this request and makes the user a moderator
+        Return
+        ------
+        bool: True if processed succesfully, False if the request is already processed
+        """
+        if self.status == RequestStatus.UNPROCESSED:
+            self.status = RequestStatus.APPROVED
+            self.group.addModerator(self.user)
+            return True
+        else:
+            return False
+
+    def deny(self):
+        """Denies this request
+        Return
+        ------
+        bool: True if processed succesfully, False if the request is already processed
+        """
+        if self.status == RequestStatus.UNPROCESSED:
+            self.status = RequestStatus.DENIED
             return True
         else:
             return False

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{%block content %}
+
+<h1>
+    Pending Join Requests
+</h1>
+
+{%for request in requests%}
+<p>
+    {{request.user.username}} - <a href="{{url_for('groups.approveJoinRequest', groupId=request.group.id, requestId = request.id)}}">approve</a> | <a href="{{url_for('groups.denyJoinRequest', groupId=request.group.id, requestId = request.id)}}">deny</a> <br>
+</p>
+{%endfor%}
+
+{%endblock %}

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{%block content %}
+
+<h1>
+    Users
+</h1>
+{% if current_user.is_anonymous %}
+<p>You may not see all users, because you are not logged in.</p>
+{% endif %}
+
+{%for user in users%}
+<p>
+    <a href="{{url_for('users.userProfile', username=user.username)}}">{{user.username}}</a>
+</p>
+{%endfor%}
+
+{%endblock %}

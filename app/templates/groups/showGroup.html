@@ -23,7 +23,7 @@
         <a href="{{url_for('groups.showMembers', groupName=group.name)}}">Members</a>
         {% if current_user.is_authenticated %}
             {% if not current_user.isMemberOf(group) %}
-                <a href="{{url_for('groups.joinGroup', groupName=group.name)}}">Join</a>
+                <a href="{{url_for('groups.joinGroup', groupName=group.name, userId=current_user.id)}}">Join</a>
             {% endif %}    
 
             {% if not current_user.isModeratorOf(group) %}
