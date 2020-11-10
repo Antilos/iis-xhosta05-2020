@@ -10,7 +10,7 @@ class JoinPermission(IntEnum):
     PUBLIC = 0
     MODERATOR_APPROVE = 1
 
-class GroupJoinRequestStatus(IntEnum):
+class RequestStatus(IntEnum):
     UNPROCESSED = 0
     APPROVED = 1
     DENIED = 2

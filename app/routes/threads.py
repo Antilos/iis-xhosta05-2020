@@ -1,5 +1,7 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for
 from flask_login import login_required, current_user
+import click
+import logging
 
 from app.models import User, Group, Thread, Post
 from app import db
@@ -46,3 +48,32 @@ def createThread(groupName):
         return redirect(url_for('threads.showThread', threadId=thread.id))
 
     return render_template("threads/createThread.html", title="Create new thread", form=form)
+
+### Commands ###
+@bp.cli.command("delete-all")
+def delete_all():
+    Thread.query.delete()
+    db.session.commit()
+    logging.info("Deleted all threads.")
+
+@bp.cli.command("create")
+@click.argument('subject')
+@click.argument('opener_name')
+@click.argument('group_name')
+def create_thread(subject, opener_name, group_name):
+    thread = Thread.query.filter_by(subject=subject).first()
+    group = Group.query.filter_by(name=group_name).first()
+    opener = User.query.filter_by(username=opener_name).first()
+    if thread:
+        logging.error(f"Thread {subject} already exists.")
+    elif not group:
+        logging.error(f"Group {group_name} doesn't exist.")
+    elif not opener:
+        logging.error(f"User {opener_name} doesn't exist.")
+    else:
+        newThread = Thread(
+            subject=subject,description="",group=group,opener=opener
+        )
+        db.session.add(newThread)
+        db.session.commit()
+        logging.info(f"Created thread {subject}")

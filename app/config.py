@@ -1,4 +1,5 @@
 import os
+import logging
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -7,6 +8,7 @@ class Config(object):
     TESTING = False
     DEVELOPMENT = False
     CSRF_ENABLED = True
+    LOGGING_LEVEL = logging.INFO
 
     SECRET_KEY = os.environ['SECRET_KEY']
 
@@ -21,7 +23,9 @@ class Config(object):
 class ProductionConfig(Config):
     DEVELOPMENT = False
     DEBUG = False
+    LOGGING_LEVEL = logging.INFO
 
 class DevelopmentConfig(Config):
     DEVELOPMENT = True
     DEBUG = True
+    LOGGING_LEVEL = logging.DEBUG

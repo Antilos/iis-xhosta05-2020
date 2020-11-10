@@ -1,4 +1,7 @@
 import os
+import click
+import logging
+import subprocess
 from flask import Flask, render_template, redirect, url_for
 from app import config
 from flask_sqlalchemy import SQLAlchemy
@@ -40,10 +43,22 @@ def create_app(test_config=None):
     except OSError:
         pass
 
+    #configure logging
+    logging.basicConfig(level=app.config['LOGGING_LEVEL'])
+
     # register with extensions
     db.init_app(app)
     migrate.init_app(app, db)
     login.init_app(app)
+
+    @app.cli.command('ding')
+    def ding():
+        logging.info("DING")
+
+    @app.cli.command('run-db-init-script')
+    @click.option('-f', '--file', default='fillAppWithDefaultData.py')
+    def runDbInitScript(file):
+        subprocess.run(["python", file])
 
     # a simple hello page
     @app.route('/hello')
@@ -53,6 +68,7 @@ def create_app(test_config=None):
     #index page
     @app.route('/')
     @app.route('/index')
+    @app.route('/home')
     def index():
         return render_template("index.html", title="Home Page")
 
