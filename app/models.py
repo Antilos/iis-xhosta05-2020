@@ -162,22 +162,22 @@ class Group(db.Model):
         return self.members.filter_by(id=user.id).count() > 0
 
     def addMember(self, user):
-        if not isMember(user):
+        if not self.isMember(user):
             self.members.append(user)
 
     def removeMember(self, user):
-        if isMember(user):
+        if self.isMember(user):
             self.members.remove(user)
 
     def isModerator(self, user):
         return self.owner_id == user.id or self.moderators.filter_by(id=user.id).count() > 0
 
     def addModerator(self, user):
-        if not isModerator(user):
+        if not self.isModerator(user):
             self.moderators.append(user)
 
     def removeModerator(self, user):
-        if isModerator(user):
+        if self.isModerator(user):
             self.moderators.remove(user)
 
     def createJoinRequest(self, user):
@@ -185,7 +185,7 @@ class Group(db.Model):
             self.join_requests.append(Group_Join_Request(user=user, group=self))
 
     def createModeratorPromotionRequest(self, user):
-        if not self.moderator_promotion_requests.filter_by(user_id=user.id).count > 0:
+        if self.moderator_promotion_requests.filter_by(user_id=user.id).count() == 0:
             self.moderator_promotion_requests.append(Group_Moderator_Promotion_Request(user=user, group=self))
 
     def getThreadsChronological(self):

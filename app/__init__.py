@@ -56,7 +56,7 @@ def create_app(test_config=None):
         logging.info("DING")
 
     @app.cli.command('run-db-init-script')
-    @click.option('-f', '--file', default='fillAppWithDefaultData')
+    @click.option('-f', '--file', default='fillAppWithDefaultData.py')
     def runDbInitScript(file):
         subprocess.run(["python", file])
 

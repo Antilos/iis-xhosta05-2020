@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 64e1ed693af8
+Revision ID: 9920401f49bc
 Revises: 
-Create Date: 2020-11-04 17:33:48.785003
+Create Date: 2020-11-10 13:12:51.057889
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '64e1ed693af8'
+revision = '9920401f49bc'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -48,6 +48,16 @@ def upgrade():
     sa.PrimaryKeyConstraint('group1_id', 'group2_id')
     )
     op.create_table('group__join__request',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('timestamp', sa.DateTime(), nullable=False),
+    sa.Column('status', sa.Integer(), nullable=False),
+    sa.Column('group_id', sa.Integer(), nullable=True),
+    sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['group_id'], ['group.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('group__moderator__promotion__request',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('timestamp', sa.DateTime(), nullable=False),
     sa.Column('status', sa.Integer(), nullable=False),
@@ -129,6 +139,7 @@ def downgrade():
     op.drop_table('thread')
     op.drop_table('group_moderators_assoc')
     op.drop_table('group_members_assoc')
+    op.drop_table('group__moderator__promotion__request')
     op.drop_table('group__join__request')
     op.drop_table('friend_groups_assoc')
     op.drop_table('group')

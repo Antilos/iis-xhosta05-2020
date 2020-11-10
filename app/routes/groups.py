@@ -117,7 +117,9 @@ def requestPromotionToModerator(groupName):
     group = Group.query.filter_by(name=groupName).first_or_404()
 
     #create promote request
-    group.createPromoteRequest(user = current_user)
+    group.createModeratorPromotionRequest(user = current_user)
+    flash("Requested promotion to moderator.")
+    db.session.commit()
     return redirect(url_for('groups.showGroup', groupName=groupName))
 
 @bp.route('/<groupName>/promotionRequests')
@@ -143,6 +145,8 @@ def approveJoinRequest(groupId, requestId):
     #verify current user has permission to handle requests
     if group.isModerator(current_user):
         request.approve()
+        db.session.commit()
+        return redirect(url_for('groups.showPendingJoinRequests', groupName=group.name))
     else:
         return Response(status=403)
 
@@ -158,6 +162,8 @@ def denyJoinRequest(groupId, requestId):
     #verify current user has permission to handle requests
     if group.isModerator(current_user):
         request.deny()
+        db.session.commit()
+        return redirect(url_for('groups.showPendingJoinRequests', groupName=group.name))
     else:
         return Response(status=403)
 
@@ -173,6 +179,8 @@ def approveModeratorPromotionRequest(groupId, requestId):
     #verify current user has permission to handle requests
     if group.isModerator(current_user):
         request.approve()
+        db.session.commit()
+        return redirect(url_for('groups.showPendingModeratorPromotionRequests', groupName=group.name))
     else:
         return Response(status=403)
 
@@ -188,6 +196,8 @@ def denyModeratorPromotionRequest(groupId, requestId):
     #verify current user has permission to handle requests
     if group.isModerator(current_user):
         request.deny()
+        db.session.commit()
+        return redirect(url_for('groups.showPendingModeratorPromotionRequests', groupName=group.name))
     else:
         return Response(status=403)
 
