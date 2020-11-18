@@ -11,7 +11,7 @@ from flask_login import LoginManager
 db = SQLAlchemy()
 migrate = Migrate()
 login = LoginManager()
-login.login_view = 'auth.login'
+#login.login_view = 'auth.login'
 
 def create_app(test_config=None):
     # create and configure the app
@@ -80,6 +80,9 @@ def create_app(test_config=None):
     app.register_blueprint(threads.bp)
     app.register_blueprint(posts.bp)
 
+    #login settings
     login.login_view='auth.login'
+    from .models import AnonymousUser
+    login.anonymous_user = AnonymousUser
 
     return app
