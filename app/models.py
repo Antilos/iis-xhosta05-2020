@@ -1,5 +1,5 @@
 from app import db, login
-from flask_login import UserMixin
+from flask_login import UserMixin, AnonymousUserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 from app.enums import Visibility, JoinPermission, RequestStatus
@@ -28,6 +28,18 @@ friend_groups_assoc = db.Table('friend_groups_assoc',
     db.Column('group1_id', db.Integer, db.ForeignKey('group.id'), primary_key=True),
     db.Column('group2_id', db.Integer, db.ForeignKey('group.id'), primary_key=True)
 )
+
+class AnonymousUser(AnonymousUserMixin):
+    def hasPermissionToViewGroup(self, group):
+        visibility = group.visibility
+        return visibility == Visibility.PUBLIC
+
+    def hasPermissionToViewUser(self, user):
+        visibility = user.profile_visibility
+        return visibility == Visibility.PUBLIC
+
+    def isAdmin(self):
+        return False
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
