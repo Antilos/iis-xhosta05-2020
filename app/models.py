@@ -124,6 +124,9 @@ class User(UserMixin, db.Model):
     def isAdmin(self):
         return self.is_admin
 
+    def hasVoted(self, post):
+        return self.upvoted_posts.query.filter_by(id = post.id).first() or self.downvoted_posts.query.filter_by(id = post.id).first()
+
 @login.user_loader
 def load_user(id):
     return User.query.get(int(id))
@@ -233,6 +236,36 @@ class Post(db.Model):
 
     author_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     thread_id = db.Column(db.Integer, db.ForeignKey('thread.id'))
+
+    def upvote(self, user):
+        #has upvoted?
+        if not (self.upvoters.query.filter_by(id=user.id).first()):
+            #has downvoted?
+            if self.downvoters.query.filter_by(id=user.id).first():
+                ranking += 2
+                self.downvoters.remove(user)
+            else:
+                ranking += 1
+
+            self.upvoters.append(user)
+            return True
+        else:
+            return False
+
+    def downvote(self, user):
+        #has downvoted?
+        if not (self.downvoters.query.filter_by(id=user.id).first()):
+            #has upvoted?
+            if self.upvoters.query.filter_by(id=user.id).first():
+                ranking += 2
+                self.upvoters.remove(user)
+            else:
+                ranking += 1
+
+            self.downvoters.append(user)
+            return True
+        else:
+            return False
 
 class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
