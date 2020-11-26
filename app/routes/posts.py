@@ -32,6 +32,27 @@ def createPost(threadId):
     #return render_template("threads/showThread.html", title=f"{thread.group.name}|{thread.subject}", thread=thread, posts=thread.getPostsChronological().all(), createPostForm=form)
     return redirect(url_for('threads.showThread', threadId=thread.id))
 
+#NOTE: Asynchrounous
+@bp.route("/upvote")
+@login_required
+def upvotePost():
+    logging.info(f"Upvoting Post")
+    post = Post.query.filter_by(id=int(request.args["post_id"])).first_or_404()
+    user = User.query.filter_by(id=int(request.args["user_id"])).first_or_404()
+    newRanking = post.upvote(user)
+    db.session.commit()
+    return {'new_ranking': newRanking}
+
+#NOTE: Asynchrounous
+@bp.route("/downvote")
+@login_required
+def downvotePost():
+    post = Post.query.filter_by(id=int(request.args["post_id"])).first_or_404()
+    user = User.query.filter_by(id=int(request.args["user_id"])).first_or_404()
+    newRanking = post.downvote(user)
+    db.session.commit()
+    return {'new_ranking': newRanking}
+
 ### Commands ###
 @bp.cli.command("delete-all")
 def delete_all():

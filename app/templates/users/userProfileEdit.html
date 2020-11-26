@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block content %}
+{% block app_content %}
     <h1>Edit Profile</h1>
     <form action="{{url_for('users.editUserProfile')}}" method="post">
         {{ profileEditForm.hidden_tag() }}

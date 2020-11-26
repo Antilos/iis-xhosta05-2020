@@ -1,45 +1,7 @@
+<!doctype html>
+<title>{% block title %}{% endblock %} - Flaskr</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
-{% extends 'bootstrap/base.html' %}
-
-{% block title %}
-  Flaskr
-{% endblock %}
-
-{% block styles %}
-  {{super()}}
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-{% endblock %}
-
-{% block scripts %}
-  <script type=text/javascript src="{{url_for('static', filename='jquery-3.5.1.js')}}"></script>
-  <script type=text/javascript>
-    $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
-  </script>
-  <script type=text/javascript>
-      function upvote(rankingElem, postId, userId){
-          $.get(
-              $SCRIPT_ROOT + '/posts/upvote', {post_id:postId, user_id:userId}
-          ).done(function(response){
-              $(rankingElem).text(response['new_ranking']);
-          }).fail(function(err){
-            alert("ERROR");
-          });
-      }
-
-      function downvote(rankingElem, postId, userId){
-        $.get(
-            $SCRIPT_ROOT + '/posts/downvote', {post_id:postId, user_id:userId}
-        ).done(function(response){
-            $(rankingElem).text(response['new_ranking']);
-        }).fail(function(err){
-          alert("ERROR");
-        });
-    }
-  </script>
-  {{super()}}
-{% endblock %}
-  
-{% block navbar %}
 <!--Top Header-->
 <header>
   <h1>isa-xhosta05-2020</h1>
@@ -50,7 +12,7 @@
   {% endif %}
   {% block header %}{% endblock %}
 </header>
-
+  
 <!--Top Navigation-->
 <nav class="top-nav">
   <a href="/index">Home</a>|
@@ -63,9 +25,6 @@
       <a href="{{ url_for('auth.login') }}">Log In</a>
     {% endif %}
 </nav>
-{% endblock %}
-
-{% block content %}
 
 <!--Flex Container-->
 <div class="flex-container">
@@ -97,12 +56,10 @@
     {% endfor %}
 
     <!--Content Proper-->
-    {% block app_content %}{% endblock %}
+    {% block content %}{% endblock %}
   </section>
 
   <nav class="right-nav">
     {%block right_nav %}{%endblock%}
   </nav>
 </div>
-
-{% endblock %}

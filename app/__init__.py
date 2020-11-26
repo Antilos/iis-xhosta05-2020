@@ -9,11 +9,13 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_ckeditor import CKEditor
+from flask_bootstrap import Bootstrap
 
 db = SQLAlchemy()
 migrate = Migrate()
 login = LoginManager()
 ckeditor = CKEditor()
+bootstrap = Bootstrap()
 #login.login_view = 'auth.login'
 
 def create_app(test_config=None):
@@ -21,7 +23,7 @@ def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
     app.logger.addHandler(logging.StreamHandler(sys.stdout))
     app.logger.setLevel(logging.INFO)
-    
+
     #set config
     try:
         environment = os.environ["APP_ENVIRONMENT"]
@@ -49,13 +51,14 @@ def create_app(test_config=None):
         pass
 
     #configure logging
-    logging.basicConfig(level=app.config['LOGGING_LEVEL'])
+    logging.basicConfig(stream=sys.stdout, level=app.config['LOGGING_LEVEL'])
 
     # register with extensions
     db.init_app(app)
     migrate.init_app(app, db)
     login.init_app(app)
     ckeditor.init_app(app)
+    bootstrap.init_app(app)
 
     @app.cli.command('ding')
     def ding():
