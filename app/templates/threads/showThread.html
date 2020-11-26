@@ -17,7 +17,7 @@
     <p>{{createPostForm.submit()}}</p>
 </form>
 -->
-{{ wtf.quick_form(createPostForm) }}
+{{ wtf.quick_form(createPostForm, action=url_for('posts.createPost', threadId=thread.id)) }}
 
 {{ckeditor.load()}}
 {{ckeditor.config(name='body')}}
