@@ -1,4 +1,5 @@
 from flask_wtf import FlaskForm
+from flask_ckeditor import CKEditorField
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, ValidationError, TextAreaField, SelectField
 from wtforms.validators import DataRequired, EqualTo, Length
 
@@ -62,7 +63,7 @@ class CreateThreadForm(FlaskForm):
     submit = SubmitField('Create Thread')
 
 class CreatePostForm(FlaskForm):
-    body = TextAreaField('Post')
+    body = CKEditorField('Post')
 
     submit = SubmitField('Create Post')
 

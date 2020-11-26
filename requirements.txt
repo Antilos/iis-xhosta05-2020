@@ -7,6 +7,7 @@ colorama==0.4.3
 DateTime==4.3
 decorator==4.4.2
 Flask==1.1.2
+Flask-CKEditor==0.4.4.1
 Flask-Login==0.5.0
 Flask-Migrate==2.5.3
 Flask-Script==2.0.6
