@@ -2,20 +2,25 @@ import os
 import click
 import logging
 import subprocess
+import sys
 from flask import Flask, render_template, redirect, url_for
 from app import config
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
+from flask_ckeditor import CKEditor
 
 db = SQLAlchemy()
 migrate = Migrate()
 login = LoginManager()
+ckeditor = CKEditor()
 #login.login_view = 'auth.login'
 
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
+    app.logger.addHandler(logging.StreamHandler(sys.stdout))
+    app.logger.setLevel(logging.INFO)
     
     #set config
     try:
@@ -50,6 +55,7 @@ def create_app(test_config=None):
     db.init_app(app)
     migrate.init_app(app, db)
     login.init_app(app)
+    ckeditor.init_app(app)
 
     @app.cli.command('ding')
     def ding():
