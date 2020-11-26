@@ -64,8 +64,8 @@ class User(UserMixin, db.Model):
 
     authored_comments = db.relationship('Comment', backref='author', lazy='dynamic')
 
-    upvoted_posts = db.relationship('Post', secondary=upvotes_assoc, backref='upvoters', lazy='dynamic')
-    downvoted_posts = db.relationship('Post', secondary=downvotes_assoc, backref='downvoters', lazy='dynamic')
+    upvoted_posts = db.relationship('Post', secondary=upvotes_assoc, backref=db.backref('upvoters', lazy='dynamic'), lazy='dynamic')
+    downvoted_posts = db.relationship('Post', secondary=downvotes_assoc, backref=db.backref('downvoters', lazy='dynamic'), lazy='dynamic')
 
     def __repr__(self):
         return f"<User {self.username}>"
@@ -239,33 +239,31 @@ class Post(db.Model):
 
     def upvote(self, user):
         #has upvoted?
-        if not (self.upvoters.query.filter_by(id=user.id).first()):
+        if not (self.upvoters.filter_by(id=user.id).first()):
             #has downvoted?
-            if self.downvoters.query.filter_by(id=user.id).first():
-                ranking += 2
+            if self.downvoters.filter_by(id=user.id).first():
+                self.ranking += 2
                 self.downvoters.remove(user)
             else:
-                ranking += 1
+                self.ranking += 1
 
             self.upvoters.append(user)
-            return True
-        else:
-            return False
+        
+        return self.ranking
 
     def downvote(self, user):
         #has downvoted?
-        if not (self.downvoters.query.filter_by(id=user.id).first()):
+        if not (self.downvoters.filter_by(id=user.id).first()):
             #has upvoted?
-            if self.upvoters.query.filter_by(id=user.id).first():
-                ranking += 2
+            if self.upvoters.filter_by(id=user.id).first():
+                self.ranking -= 2
                 self.upvoters.remove(user)
             else:
-                ranking += 1
+                self.ranking -= 1
 
             self.downvoters.append(user)
-            return True
-        else:
-            return False
+
+        return self.ranking
 
 class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)

@@ -1,11 +1,13 @@
 {% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
 
-{% block content %}
+{% block app_content %}
 
 <h2>{{thread.subject}}</h2>
 
 <!--New post-->
 <h3>New Post</h3>
+<!--
 <form action="{{url_for('posts.createPost', threadId=thread.id)}}", method="POST">
     {{ createPostForm.hidden_tag() }}
     <p>
@@ -14,6 +16,8 @@
     </p>
     <p>{{createPostForm.submit()}}</p>
 </form>
+-->
+{{ wtf.quick_form(createPostForm) }}
 
 {{ckeditor.load()}}
 {{ckeditor.config(name='body')}}
@@ -22,14 +26,22 @@
 {% for post in posts %}
 
     <div class="post">
+        <!--Author-->
         <div class="post.author">
             {{post.author.username}}
         </div>
+        <!--Post Body-->
         <div class="post.body">
             {{post.body|safe}}
         </div>
-        <div class="post.ranking">
-            {{post.ranking}}
+
+        <!--Post Ranking-->
+        <div class="flex-container">
+            <div id="{{post.id}}_ranking" class="post.ranking">
+                {{post.ranking}}
+            </div>
+            <a href="javascript:upvote('#{{post.id}}_ranking', '{{post.id}}', '{{current_user.id}}');">Upvote</a>
+            <a href="javascript:downvote('#{{post.id}}_ranking', '{{post.id}}', '{{current_user.id}}');">Downvote</a>
         </div>
     </div>
 

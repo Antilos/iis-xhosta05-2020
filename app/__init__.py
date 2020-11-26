@@ -9,11 +9,13 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_ckeditor import CKEditor
+from flask_bootstrap import Bootstrap
 
 db = SQLAlchemy()
 migrate = Migrate()
 login = LoginManager()
 ckeditor = CKEditor()
+bootstrap = Bootstrap()
 #login.login_view = 'auth.login'
 
 def create_app(test_config=None):
@@ -56,6 +58,7 @@ def create_app(test_config=None):
     migrate.init_app(app, db)
     login.init_app(app)
     ckeditor.init_app(app)
+    bootstrap.init_app(app)
 
     @app.cli.command('ding')
     def ding():
