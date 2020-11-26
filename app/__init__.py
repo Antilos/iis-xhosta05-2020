@@ -21,7 +21,7 @@ def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
     app.logger.addHandler(logging.StreamHandler(sys.stdout))
     app.logger.setLevel(logging.INFO)
-    
+
     #set config
     try:
         environment = os.environ["APP_ENVIRONMENT"]
@@ -49,7 +49,7 @@ def create_app(test_config=None):
         pass
 
     #configure logging
-    logging.basicConfig(level=app.config['LOGGING_LEVEL'])
+    logging.basicConfig(stream=sys.stdout, level=app.config['LOGGING_LEVEL'])
 
     # register with extensions
     db.init_app(app)
