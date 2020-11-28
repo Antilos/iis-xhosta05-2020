@@ -10,6 +10,7 @@ from app.forms import CreatePostForm
 bp = Blueprint('posts', __name__, url_prefix="/posts")
 
 @bp.route("/<threadId>/createPost", methods=["GET","POST"])
+@login_required
 def createPost(threadId):
     form = CreatePostForm()
 
