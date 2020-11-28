@@ -17,10 +17,12 @@
     <p>{{createPostForm.submit()}}</p>
 </form>
 -->
+{% if not current_user.is_anonymous %}
 {{ wtf.quick_form(createPostForm, action=url_for('posts.createPost', threadId=thread.id)) }}
 
 {{ckeditor.load()}}
 {{ckeditor.config(name='body')}}
+{% endif %}
 
 <!--Posts-->
 {% for post in posts %}
