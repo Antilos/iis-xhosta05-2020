@@ -3,7 +3,7 @@ from flask_login import login_required, current_user
 import click
 import logging
 
-from app.models import User, Group, Thread, Post, Group_Join_Request, Group_Moderator_Promotion_Request
+from app.models import User, Group, Thread, Post, Group_Join_Request, Group_Moderator_Promotion_Request, Tag
 from app import db
 from app.forms import CreateGroupForm
 from app.enums import JoinPermission, RequestStatus
@@ -27,6 +27,8 @@ def createGroup():
     form = CreateGroupForm()
 
     if form.validate_on_submit():
+
+        #create group
         group = Group(
             name=form.name.data,
             description=form.description.data,
@@ -35,7 +37,13 @@ def createGroup():
             owner=current_user
         )
 
+        #add current user as member
         group.addMember(current_user)
+
+        #add tags
+        tagTokens = form.tags.data.split(sep=",")
+        for tagToken in tagTokens:
+            group.addTag(tagToken)
 
         db.session.add(group)
         db.session.commit()

@@ -48,6 +48,7 @@ class CreateGroupForm(FlaskForm):
     joinPermission = getListForForm(JoinPermission)
     groupVisibility = SelectField('Group Visibility', choices=visibility)
     isOpen = BooleanField('Is Open?', default=True)
+    tags = TextAreaField('Tags')
 
     submit = SubmitField('Create Group')
 

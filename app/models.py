@@ -29,6 +29,11 @@ friend_groups_assoc = db.Table('friend_groups_assoc',
     db.Column('group2_id', db.Integer, db.ForeignKey('group.id'), primary_key=True)
 )
 
+group_tag_assoc = db.Table('group_tag_assoc',
+    db.Column('group_id', db.Integer, db.ForeignKey('group.id'), primary_key=True),
+    db.Column('tag_id', db.Integer, db.ForeignKey('tag.id'), primary_key=True)
+)
+
 class AnonymousUser(AnonymousUserMixin):
     def hasPermissionToViewGroup(self, group):
         visibility = group.visibility
@@ -163,6 +168,13 @@ class Group(db.Model):
         secondaryjoin=id==friend_groups_assoc.c.group2_id
     )
 
+    tags = db.relationship(
+        'Tag',
+        secondary=group_tag_assoc,
+        backref=db.backref('tagged_groups', lazy='dynamic'),
+        lazy='dynamic'
+    )
+
     threads = db.relationship('Thread', backref='group', lazy='dynamic')
 
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
@@ -205,6 +217,24 @@ class Group(db.Model):
 
     def getThreadsChronological(self):
         return self.threads.order_by(Thread.opened_timestamp.desc())
+
+    def addTag(self, tagStr):
+        # does the tag exist?
+        tag = Tag.query.filter_by(keyword=tagStr).first()
+        if not tag:
+            #create tag
+            tag = Tag(keyword=tagStr)
+            #add tag to group
+            self.tags.append(tag)
+            return True
+        else:
+            #check if this group is already tagged
+            if not self.tags.query.filter_by(id=tag.id).first():
+                #add tag to group
+                self.tags.append(tag)
+                return True
+            else:
+                return False
 
 class Thread(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -338,3 +368,7 @@ class Group_Moderator_Promotion_Request(db.Model):
             return True
         else:
             return False
+
+class Tag(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    keyword = db.Column(db.String(80), index=True, unique=True)
