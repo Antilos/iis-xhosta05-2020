@@ -24,5 +24,13 @@ App is automatically deployed after a change in the github/main branch.
 This app uses PostgreSql database. The production database is on Heroku, but for development we'll need to use local databases.
 This is ok, as the app uses SQLAlchemy to abstract database operations. The correct database will be chosen using local variables
 
+Database is generated from sql-alchemy ORM in app/models.py using Alembic migration tool.
+```
+flask db migrate #creates a migration
+flask db upgrade #upgrades the database
+```
+
+Heroku's ephemeral file system makes it so the migration has to be created before pushing, and upgraded during the build process.
+
 ## Tutorial
 Use SQLite for local development. Set SQLALCHEMY_DATABASE_URI configuration option to "sqlite:///path/to/db"
