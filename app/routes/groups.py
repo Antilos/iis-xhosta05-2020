@@ -21,13 +21,21 @@ def showAllGroups():
     groups = Group.query.all()
     return render_template("groups/showAllGroups.html", title="All Groups", groups=groups)
 
+@bp.route('/tagged/<tagKeyword>')
+def showTaggedGroups(tagKeyword):
+    tag = Tag.query.filter_by(keyword=tagKeyword).first()
+    if tag:
+        taggedGroups = tag.tagged_groups
+    else:
+        taggedGroups = []
+    return render_template("groups/showGroupsByTags.html", title=f"Groups Tagged with {tagKeyword}", taggedGroups=taggedGroups)
+
 @bp.route('/createGroup', methods=["GET","POST"])
 @login_required
 def createGroup():
     form = CreateGroupForm()
 
     if form.validate_on_submit():
-
         #create group
         group = Group(
             name=form.name.data,

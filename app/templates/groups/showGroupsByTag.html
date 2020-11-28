@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{%block app_content %}
+
+<h1>
+    Groups tagged with {{tag.keyword}}
+</h1>
+
+{%for group in taggedGroups%}
+<p>
+    <a href="{{url_for('groups.showGroup', groupName=group.name)}}">{{group.name}}</a>
+</p>
+{%endfor%}
+
+{%endblock %}
