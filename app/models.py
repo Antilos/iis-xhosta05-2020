@@ -34,6 +34,11 @@ group_tag_assoc = db.Table('group_tag_assoc',
     db.Column('tag_id', db.Integer, db.ForeignKey('tag.id'), primary_key=True)
 )
 
+user_tag_assoc = db.Table('group_tag_assoc',
+    db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
+    db.Column('tag_id', db.Integer, db.ForeignKey('tag.id'), primary_key=True)
+)
+
 class AnonymousUser(AnonymousUserMixin):
     def hasPermissionToViewGroup(self, group):
         visibility = group.visibility
@@ -71,6 +76,13 @@ class User(UserMixin, db.Model):
 
     upvoted_posts = db.relationship('Post', secondary=upvotes_assoc, backref=db.backref('upvoters', lazy='dynamic'), lazy='dynamic')
     downvoted_posts = db.relationship('Post', secondary=downvotes_assoc, backref=db.backref('downvoters', lazy='dynamic'), lazy='dynamic')
+
+    followed_tags = db.relationship(
+        'Tag',
+        secondary=user_tag_assoc,
+        backref=db.backref('users_following', lazy='dynamic'),
+        lazy='dynamic'
+    )
 
     def __repr__(self):
         return f"<User {self.username}>"
