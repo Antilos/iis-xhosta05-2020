@@ -5,7 +5,7 @@ import logging
 
 from app.models import User, Group, Thread, Post, Group_Join_Request, Group_Moderator_Promotion_Request, Tag
 from app import db
-from app.forms import CreateGroupForm
+from app.forms import CreateGroupForm, ChangeGroupTagsForm
 from app.enums import JoinPermission, RequestStatus
 
 bp = Blueprint('groups', __name__, url_prefix="/groups")
@@ -51,6 +51,8 @@ def createGroup():
         #add tags
         tagTokens = form.tags.data.split(sep=",")
         for tagToken in tagTokens:
+            if not tagToken: #ignore empty strings
+                continue
             group.addTag(tagToken.strip())
 
         db.session.add(group)
@@ -217,26 +219,37 @@ def denyModeratorPromotionRequest(groupId, requestId):
     else:
         return Response(status=403)
 
-@bp.route('<groupId>/addTags')
-@login_required()
-def addTags(groupId):
+@bp.route('<groupId>/addTags', methods=["GET","POST"])
+@login_required
+def changeTags(groupId):
+    form = ChangeGroupTagsForm()
+    #get group
+    group = Group.query.filter_by(id=groupId).first_or_404()
+
     if form.validate_on_submit():
-        #get group
-        group = Group.query.filter_by(id=groupId).first_or_404()
 
         #check permmisions
-        if current_user.isModerator(group):
+        if current_user.isModeratorOf(group):
             #add tags
-            tagTokens = form.tags.data.split(sep=",")
+            tagTokens = form.addTags.data.split(sep=",")
             for tagToken in tagTokens:
+                if not tagToken: #ignore empty strings
+                    continue
                 group.addTag(tagToken.strip())
+            
+            #remove tags
+            tagTokens = form.removeTags.data.split(sep=",")
+            for tagToken in tagTokens:
+                if not tagToken: #ignore empty strings
+                    continue
+                group.removeTag(tagToken.strip())
 
             db.session.commit()
-            return redirect(url_for('groups.showGroup', group=group))
+            return redirect(url_for('groups.showGroup', groupName=group.name))
         else:
             return 403
     
-    return render_template("groups/addGroupTags", form=form)
+    return render_template("groups/addGroupTags.html", group=group, form=form)
 
 ### Commands ###
 @bp.cli.command("delete-all")

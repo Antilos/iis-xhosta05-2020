@@ -30,6 +30,8 @@ class ProfileEditForm(FlaskForm):
     #profile visibility
     visibility = [(int(value), label) for label, value in Visibility.__members__.items()]
     profileVisibility = SelectField('Profile Visibility', choices=visibility)
+    addTags = TextAreaField('Add Tags to Follow')
+    removeTags = TextAreaField('Remove Tags You\'re Following')
 
     submitProfileEdit = SubmitField('Submit profile edit')
 
@@ -73,7 +75,8 @@ class CreateCommentForm(FlaskForm):
 
     submit = SubmitField('Comment')
 
-class AddTagsForm(FlaskForm):
-    tags = TextAreaField('Tags')
+class ChangeGroupTagsForm(FlaskForm):
+    addTags = TextAreaField('Add Tags')
+    removeTags = TextAreaField('Remove Tags')
     
     submit = SubmitField('Add Tags')

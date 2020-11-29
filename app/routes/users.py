@@ -35,6 +35,17 @@ def editUserProfile():
     if profileEditForm.validate_on_submit():
         current_user.profile_desc = profileEditForm.description.data
         current_user.profile_visibility = profileEditForm.profileVisibility.data
+
+        #add tags
+        tagTokens = form.addTags.data.split(sep=",")
+        for tagToken in tagTokens:
+            current_user.addTag(tagToken.strip())
+
+        #remove tags
+        tagTokens = form.removeTags.data.split(sep=",")
+        for tagToken in tagTokens:
+            current_user.removeTag(tagToken.strip())
+
         db.session().commit()
         flash("Changes saved")
 

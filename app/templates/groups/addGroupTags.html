@@ -2,7 +2,13 @@
 {% import 'bootstrap/wtf.html' as wtf %}
 
 {% block app_content %}
+<p>This group is tagged with:</p>
+<p>
+    {% for tag in group.tags %}
+        {{tag.keyword}}, 
+    {% endfor %}
+</p>
 
-{{ wtf.quick_form(form, action=url_for('groups.addTags', groupId=group.id)) }}
+{{ wtf.quick_form(form, action=url_for('groups.changeTags', groupId=group.id)) }}
 
 {%endblock%}

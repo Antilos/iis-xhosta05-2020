@@ -3,6 +3,7 @@ from flask_login import UserMixin, AnonymousUserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 from app.enums import Visibility, JoinPermission, RequestStatus
+import logging
 
 group_moderators_assoc = db.Table('group_moderators_assoc',
     db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
@@ -34,7 +35,7 @@ group_tag_assoc = db.Table('group_tag_assoc',
     db.Column('tag_id', db.Integer, db.ForeignKey('tag.id'), primary_key=True)
 )
 
-user_tag_assoc = db.Table('group_tag_assoc',
+user_tag_assoc = db.Table('user_tag_assoc',
     db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
     db.Column('tag_id', db.Integer, db.ForeignKey('tag.id'), primary_key=True)
 )
@@ -144,6 +145,41 @@ class User(UserMixin, db.Model):
     def hasVoted(self, post):
         return self.upvoted_posts.query.filter_by(id = post.id).first() or self.downvoted_posts.query.filter_by(id = post.id).first()
 
+    def addTag(self, tagStr):
+        # does the tag exist?
+        tag = Tag.query.filter_by(keyword=tagStr).first()
+        if not tag:
+            #create tag
+            tag = Tag(keyword=tagStr)
+            db.session.add(tag)
+            #add tag to group
+            self.followed_tags.append(tag)
+            return True
+        else:
+            #check if this user is already following this tag
+            if not self.followed_tags.filter_by(id=tag.id).first():
+                #add tag to user
+                self.followed_tags.append(tag)
+                return True
+            else:
+                return False
+
+        def removeTag(self, tagStr):
+            # does the tag exist?
+            tag = Tag.query.filter_by(keyword=tagStr).first()
+            if not tag:
+                #no tag to remove
+                logging.debug(f"Tag {tagStr} you are trying to remove doesn't exits.")
+                return True
+            else:
+                #check if this user is already following this tag
+                if self.followed_tags.filter_by(id=tag.id).first():
+                    #remove tag from user
+                    self.followed_tags.remove(tag)
+                    return True
+                else:
+                    return False
+
 @login.user_loader
 def load_user(id):
     return User.query.get(int(id))
@@ -234,19 +270,42 @@ class Group(db.Model):
         # does the tag exist?
         tag = Tag.query.filter_by(keyword=tagStr).first()
         if not tag:
+            logging.debug(f"Creating Tag {tagStr}.")
             #create tag
             tag = Tag(keyword=tagStr)
+            db.session.add(tag)
             #add tag to group
+            logging.debug(f"Adding tag {tagStr}.")
             self.tags.append(tag)
             return True
         else:
             #check if this group is already tagged
-            if not self.tags.query.filter_by(id=tag.id).first():
+            if not self.tags.filter_by(id=tag.id).first():
+                logging.debug(f"Adding tag {tagStr}.")
                 #add tag to group
                 self.tags.append(tag)
                 return True
             else:
+                logging.debug(f"Group already has tag {tagStr}.")
                 return False
+
+    def removeTag(self, tagStr):
+            # does the tag exist?
+            tag = Tag.query.filter_by(keyword=tagStr).first()
+            if not tag:
+                #no tag to remove
+                logging.debug(f"Tag {tagStr} you are trying to remove doesn't exits.")
+                return True
+            else:
+            #check if this group is already tagged
+                if self.tags.filter_by(id=tag.id).first():
+                    #remove tag from group
+                    logging.debug(f"Removing tag {tagStr}.")
+                    self.tags.remove(tag)
+                    return True
+                else:
+                    logging.debug(f"This group doesn't have tag {tagStr}.")
+                    return False
 
 class Thread(db.Model):
     id = db.Column(db.Integer, primary_key=True)

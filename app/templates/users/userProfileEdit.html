@@ -1,7 +1,10 @@
 {% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
 
 {% block app_content %}
     <h1>Edit Profile</h1>
+    {{ wtf.quick_form(form, action=url_for('users.editUserProfile')) }}
+    <!--
     <form action="{{url_for('users.editUserProfile')}}" method="post">
         {{ profileEditForm.hidden_tag() }}
         <p>
@@ -42,4 +45,6 @@
 
         <p>{{ passwordChangeForm.submitPasswordChange() }}</p>
     </form>
+    -->
+
 {% endblock %}
