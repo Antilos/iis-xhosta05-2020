@@ -51,7 +51,7 @@ def createGroup():
         #add tags
         tagTokens = form.tags.data.split(sep=",")
         for tagToken in tagTokens:
-            group.addTag(tagToken)
+            group.addTag(tagToken.strip())
 
         db.session.add(group)
         db.session.commit()
@@ -216,6 +216,27 @@ def denyModeratorPromotionRequest(groupId, requestId):
         return redirect(url_for('groups.showPendingModeratorPromotionRequests', groupName=group.name))
     else:
         return Response(status=403)
+
+@bp.route('<groupId>/addTags')
+@login_required()
+def addTags(groupId):
+    if form.validate_on_submit():
+        #get group
+        group = Group.query.filter_by(id=groupId).first_or_404()
+
+        #check permmisions
+        if current_user.isModerator(group):
+            #add tags
+            tagTokens = form.tags.data.split(sep=",")
+            for tagToken in tagTokens:
+                group.addTag(tagToken.strip())
+
+            db.session.commit()
+            return redirect(url_for('groups.showGroup', group=group))
+        else:
+            return 403
+    
+    return render_template("groups/addGroupTags", form=form)
 
 ### Commands ###
 @bp.cli.command("delete-all")

@@ -33,6 +33,7 @@
             {% if current_user.isModeratorOf(group) %}
                 <a href="{{url_for('groups.showPendingJoinRequests', groupName=group.name)}}">Pending Join Requests</a>
                 <a href="{{url_for('groups.showPendingModeratorPromotionRequests', groupName=group.name)}}">Pending Moderator Promotion Requests</a>
+                <a href="{{url_for('groups.addTags', groupId=group.id)}}">Add Tags</a>
             {% endif %}
         {% endif %}
 {%endblock%}

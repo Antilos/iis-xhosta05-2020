@@ -72,3 +72,8 @@ class CreateCommentForm(FlaskForm):
     body = TextAreaField('Comment')
 
     submit = SubmitField('Comment')
+
+class AddTagsForm(FlaskForm):
+    tags = TextAreaField('Tags')
+    
+    submit = SubmitField('Add Tags')
