@@ -37,12 +37,12 @@ def editUserProfile():
         current_user.profile_visibility = profileEditForm.profileVisibility.data
 
         #add tags
-        tagTokens = form.addTags.data.split(sep=",")
+        tagTokens = profileEditForm.addTags.data.split(sep=",")
         for tagToken in tagTokens:
             current_user.addTag(tagToken.strip())
 
         #remove tags
-        tagTokens = form.removeTags.data.split(sep=",")
+        tagTokens = profileEditForm.removeTags.data.split(sep=",")
         for tagToken in tagTokens:
             current_user.removeTag(tagToken.strip())
 

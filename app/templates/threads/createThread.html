@@ -1,19 +1,11 @@
 {% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
 
 {%block app_content %}
 
-<form action="" method="post">
-    {{ form.hidden_tag() }}
-    <p>
-        {{form.subject.label}}<br>
-        {{form.subject()}}
-    </p>
-    <p>
-        {{form.description.label}}<br>
-        {{form.description()}}
-    </p>
+{{ wtf.quick_form(profileEditForm) }}
 
-    <p>{{form.submit()}}</p>
-</form>>
+{{ckeditor.load()}}
+{{ckeditor.config(name='description')}}
 
 {%endblock %}

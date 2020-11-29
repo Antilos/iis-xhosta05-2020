@@ -12,7 +12,16 @@
 
     <p>
         <b>Description:</b><br>
-        {{user.profile_desc}}
+        {{user.profile_desc|safe}}
+    </p>
+
+    <p>
+        <b>Followed Tags:</b>
+        <p>
+        {% for tag in user.followed_tags %}
+            {{tag.keyword}}, 
+        {% endfor %}
+        </p>
     </p>
 
     {%if user == current_user%}

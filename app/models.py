@@ -164,21 +164,21 @@ class User(UserMixin, db.Model):
             else:
                 return False
 
-        def removeTag(self, tagStr):
-            # does the tag exist?
-            tag = Tag.query.filter_by(keyword=tagStr).first()
-            if not tag:
-                #no tag to remove
-                logging.debug(f"Tag {tagStr} you are trying to remove doesn't exits.")
+    def removeTag(self, tagStr):
+        # does the tag exist?
+        tag = Tag.query.filter_by(keyword=tagStr).first()
+        if not tag:
+            #no tag to remove
+            logging.debug(f"Tag {tagStr} you are trying to remove doesn't exits.")
+            return True
+        else:
+            #check if this user is already following this tag
+            if self.followed_tags.filter_by(id=tag.id).first():
+                #remove tag from user
+                self.followed_tags.remove(tag)
                 return True
             else:
-                #check if this user is already following this tag
-                if self.followed_tags.filter_by(id=tag.id).first():
-                    #remove tag from user
-                    self.followed_tags.remove(tag)
-                    return True
-                else:
-                    return False
+                return False
 
 @login.user_loader
 def load_user(id):

@@ -25,7 +25,7 @@ class RegisterForm(FlaskForm):
 
 class ProfileEditForm(FlaskForm):
     #profile description
-    description = TextAreaField('description')
+    description = CKEditorField('description')
 
     #profile visibility
     visibility = [(int(value), label) for label, value in Visibility.__members__.items()]
@@ -61,7 +61,7 @@ class CreateGroupForm(FlaskForm):
 
 class CreateThreadForm(FlaskForm):
     subject = StringField('Thread Subject', validators=[DataRequired(), Length(min=0, max=160)])
-    description = TextAreaField('Thread Description')
+    description = CKEditorField('Thread Description')
 
     submit = SubmitField('Create Thread')
 
