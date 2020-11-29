@@ -5,7 +5,7 @@ import logging
 
 from app.models import User, Group, Thread, Post, Group_Join_Request, Group_Moderator_Promotion_Request, Tag
 from app import db
-from app.forms import CreateGroupForm, ChangeGroupTagsForm
+from app.forms import CreateGroupForm, ChangeGroupTagsForm, SearchGroupsByTagsOrNameForm
 from app.enums import JoinPermission, RequestStatus
 
 bp = Blueprint('groups', __name__, url_prefix="/groups")
@@ -29,6 +29,32 @@ def showTaggedGroups(tagKeyword):
     else:
         taggedGroups = []
     return render_template("groups/showGroupsByTags.html", title=f"Groups Tagged with {tagKeyword}", taggedGroups=taggedGroups)
+
+@bp.route('/explore', methods=["GET", "POST"])
+def exploreGroups():
+    form = SearchGroupsByTagsOrNameForm()
+
+    groups = set()
+    if form.validate_on_submit():
+        keywords = form.searchBar.data.split(",")
+        for keyword in map(str.strip,keywords):
+            #add all groups named keyword
+            namedGroup = Group.query.filter_by(name=keyword).first()
+            if namedGroup:
+                groups.add(namedGroup)
+
+            #add all groups tagged keyword
+            tag = Tag.query.filter_by(keyword=keyword).first()
+            if tag:
+                for taggedGroup in tag.tagged_groups:
+                    groups.add(taggedGroup)
+        
+        logging.debug(f"Found Groups are: {[group.name for group in groups]}")
+    else:
+        groups = Group.query.all()
+
+    logging.debug(f"Going to render groups: {groups}")
+    return render_template("groups/exploreGroups.html", groups=groups, form=form)
 
 @bp.route('/createGroup', methods=["GET","POST"])
 @login_required

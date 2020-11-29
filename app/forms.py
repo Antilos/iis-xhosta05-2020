@@ -80,3 +80,8 @@ class ChangeGroupTagsForm(FlaskForm):
     removeTags = TextAreaField('Remove Tags')
     
     submit = SubmitField('Add Tags')
+
+class SearchGroupsByTagsOrNameForm(FlaskForm):
+    searchBar = TextAreaField('Search by Names or Tags (separated by comma)')
+
+    submit = SubmitField('Search')
