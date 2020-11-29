@@ -13,7 +13,7 @@ bp = Blueprint('groups', __name__, url_prefix="/groups")
 @bp.route('/showMyGroups')
 @login_required
 def showJoinedGroups():
-    groups = current_user.joined_groups.all() + current_user.owned_groups.all()
+    groups = current_user.joined_groups.all()
     return render_template("groups/joinedGroups.html", title="My Groups", groups=groups)
 
 @bp.route('/allGroups')
