@@ -6,7 +6,7 @@ Users = [
     ["admin", "admin", "0"],
     ["publicUser", "user", "0"],
     ["onlyRegisteredSeeMeUser", "user", "1"],
-    ["privateUser", "user", "3"]
+    ["privateUser", "user", "3"],
     ["ema", "user", "3"]
 ]
 
@@ -83,7 +83,7 @@ addMembers = [
     #[group_name, username]
     ["PublicGroup","onlyRegisteredSeeMeUser"],
     ["PublicGroup","privateUser"],
-    ["OnlyRegisteredGroup","ema"],7
+    ["OnlyRegisteredGroup","ema"],
     ["PrivateGroup","ema"],
     ["PrivateGroup","onlyRegisteredSeeMeUser"],
     ["onlyregisteregroup2","onlyRegisteredSeeMeUser"],
