@@ -1,11 +1,13 @@
 {% extends "base.html" %}
 
 {% block app_content %}
-    <h1>{{group.name}}</h1>
+    <h1>Group: {{group.name}}</h1>
 
-    <p>{{group.description}}</p>
+    <p>{{group.description|safe}}</p>
 
-    <h2>Threads</h2>
+    <hr>
+
+    <h2>Group threads: </h2>
 
     {% for thread in threads %}
     <!--mnau mnau mnau mnau mnau mnau mnau mnau -->
@@ -19,20 +21,21 @@
 {%endblock%}
 
 {% block right_nav %}
-        <a href="{{url_for('threads.createThread', groupName=group.name)}}">Create Thread</a>
-        <a href="{{url_for('groups.showMembers', groupName=group.name)}}">Members</a>
+        <a href="{{url_for('threads.createThread', groupName=group.name)}}">Create Thread</a><br>
+        <a href="{{url_for('groups.showMembers', groupName=group.name)}}">Members</a><br>
         {% if current_user.is_authenticated %}
             {% if not current_user.isMemberOf(group) %}
-                <a href="{{url_for('groups.joinGroup', groupName=group.name, userId=current_user.id)}}">Join</a>
+                <a href="{{url_for('groups.joinGroup', groupName=group.name, userId=current_user.id)}}">Join</a><br>
             {% endif %}    
 
             {% if not current_user.isModeratorOf(group) %}
-                <a href="{{url_for('groups.requestPromotionToModerator', groupName=group.name)}}">Request Promotion To Moderator</a>
+                <a href="{{url_for('groups.requestPromotionToModerator', groupName=group.name)}}">Request Promotion To Moderator</a><br>
             {% endif %}
 
             {% if current_user.isModeratorOf(group) %}
                 <a href="{{url_for('groups.showPendingJoinRequests', groupName=group.name)}}">Pending Join Requests</a>
                 <a href="{{url_for('groups.showPendingModeratorPromotionRequests', groupName=group.name)}}">Pending Moderator Promotion Requests</a>
+                <a href="{{url_for('groups.changeTags', groupId=group.id)}}">Change Tags</a>
             {% endif %}
         {% endif %}
 {%endblock%}

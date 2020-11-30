@@ -5,6 +5,10 @@
 
 <h2>{{thread.subject}}</h2>
 
+<div class="thread.description">
+    {{thread.description|safe}}
+</div>
+
 <!--New post-->
 <h3>New Post</h3>
 <!--
@@ -17,18 +21,20 @@
     <p>{{createPostForm.submit()}}</p>
 </form>
 -->
+{% if not current_user.is_anonymous %}
 {{ wtf.quick_form(createPostForm, action=url_for('posts.createPost', threadId=thread.id)) }}
 
 {{ckeditor.load()}}
 {{ckeditor.config(name='body')}}
-
+{% endif %}
+<br>
 <!--Posts-->
 {% for post in posts %}
 
     <div class="post">
         <!--Author-->
         <div class="post.author">
-            {{post.author.username}}
+            Posted by {{post.author.username}}
         </div>
         <!--Post Body-->
         <div class="post.body">
@@ -36,9 +42,9 @@
         </div>
 
         <!--Post Ranking-->
-        <div class="flex-container">
+        <div class="flex-container-for-posts">
             <div id="{{post.id}}_ranking" class="post.ranking">
-                {{post.ranking}}
+                Current ranking of this message is: {{post.ranking}}
             </div>
             <a href="javascript:upvote('#{{post.id}}_ranking', '{{post.id}}', '{{current_user.id}}');">Upvote</a>
             <a href="javascript:downvote('#{{post.id}}_ranking', '{{post.id}}', '{{current_user.id}}');">Downvote</a>

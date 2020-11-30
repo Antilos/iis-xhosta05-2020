@@ -3,9 +3,9 @@ from flask_login import login_required, current_user
 import click
 import logging
 
-from app.models import User, Group, Thread, Post, Group_Join_Request, Group_Moderator_Promotion_Request
+from app.models import User, Group, Thread, Post, Group_Join_Request, Group_Moderator_Promotion_Request, Tag
 from app import db
-from app.forms import CreateGroupForm
+from app.forms import CreateGroupForm, ChangeGroupTagsForm, SearchGroupsByTagsOrNameForm
 from app.enums import JoinPermission, RequestStatus
 
 bp = Blueprint('groups', __name__, url_prefix="/groups")
@@ -13,7 +13,7 @@ bp = Blueprint('groups', __name__, url_prefix="/groups")
 @bp.route('/showMyGroups')
 @login_required
 def showJoinedGroups():
-    groups = current_user.joined_groups.all() + current_user.owned_groups.all()
+    groups = current_user.joined_groups.all()
     return render_template("groups/joinedGroups.html", title="My Groups", groups=groups)
 
 @bp.route('/allGroups')
@@ -21,12 +21,48 @@ def showAllGroups():
     groups = Group.query.all()
     return render_template("groups/showAllGroups.html", title="All Groups", groups=groups)
 
+@bp.route('/tagged/<tagKeyword>')
+def showTaggedGroups(tagKeyword):
+    tag = Tag.query.filter_by(keyword=tagKeyword).first()
+    if tag:
+        taggedGroups = tag.tagged_groups
+    else:
+        taggedGroups = []
+    return render_template("groups/showGroupsByTags.html", title=f"Groups Tagged with {tagKeyword}", taggedGroups=taggedGroups)
+
+@bp.route('/explore', methods=["GET", "POST"])
+def exploreGroups():
+    form = SearchGroupsByTagsOrNameForm()
+
+    groups = set()
+    if form.validate_on_submit():
+        keywords = form.searchBar.data.split(",")
+        for keyword in map(str.strip,keywords):
+            #add all groups named keyword
+            namedGroup = Group.query.filter_by(name=keyword).first()
+            if namedGroup:
+                groups.add(namedGroup)
+
+            #add all groups tagged keyword
+            tag = Tag.query.filter_by(keyword=keyword).first()
+            if tag:
+                for taggedGroup in tag.tagged_groups:
+                    groups.add(taggedGroup)
+        
+        logging.debug(f"Found Groups are: {[group.name for group in groups]}")
+    else:
+        groups = Group.query.all()
+
+    logging.debug(f"Going to render groups: {groups}")
+    return render_template("groups/exploreGroups.html", groups=groups, form=form)
+
 @bp.route('/createGroup', methods=["GET","POST"])
 @login_required
 def createGroup():
     form = CreateGroupForm()
 
     if form.validate_on_submit():
+        #create group
         group = Group(
             name=form.name.data,
             description=form.description.data,
@@ -35,7 +71,15 @@ def createGroup():
             owner=current_user
         )
 
+        #add current user as member
         group.addMember(current_user)
+
+        #add tags
+        tagTokens = form.tags.data.split(sep=",")
+        for tagToken in tagTokens:
+            if not tagToken: #ignore empty strings
+                continue
+            group.addTag(tagToken.strip())
 
         db.session.add(group)
         db.session.commit()
@@ -72,15 +116,27 @@ def showMembers(groupName):
 
     #verify current user has permission to view this group
     if current_user.hasPermissionToViewGroup(group):
-        #TODO
-        print(group.members.all())
         members = group.members.paginate(page, membersPerPage, False)
-        print(members.items)
         nextUrl = url_for('groups.showMembers', groupName=groupName, page=members.next_num) if members.has_next else None
         prevUrl = url_for('groups.showMembers', groupName=groupName, page=members.prev_num) if members.has_prev else None
         return render_template("groups/showMembers.html", title=f"Members of {groupName}", members=members.items, group=group)
     else:
         return render_template('groups/unauthorizedGroupView.html', title="Unauthorized Group View", group=group)
+
+@bp.route('/<groupId>/remove/<userId>')
+@login_required
+def removeMember(groupId, userId):
+    group = Group.query.filter_by(id=groupId).first_or_404()
+
+    if group.isOwner(current_user):
+        user = User.query.filter_by(id=userId).first_or_404()
+        group.removeMember(user)
+        logging.info(f"{current_user.username} removed user {user.username} from group {group.name}.")
+        db.session.commit()
+        return redirect(url_for('groups.showMembers', groupName=group.name))
+    else:
+        logging.info(f"{current_user.username} removed user {user.username} from group {group.name}.")
+        return Response(response=403)
 
 @bp.route('/<groupName>/join')
 @login_required
@@ -201,6 +257,38 @@ def denyModeratorPromotionRequest(groupId, requestId):
     else:
         return Response(status=403)
 
+@bp.route('<groupId>/addTags', methods=["GET","POST"])
+@login_required
+def changeTags(groupId):
+    form = ChangeGroupTagsForm()
+    #get group
+    group = Group.query.filter_by(id=groupId).first_or_404()
+
+    if form.validate_on_submit():
+
+        #check permmisions
+        if current_user.isModeratorOf(group):
+            #add tags
+            tagTokens = form.addTags.data.split(sep=",")
+            for tagToken in tagTokens:
+                if not tagToken: #ignore empty strings
+                    continue
+                group.addTag(tagToken.strip())
+            
+            #remove tags
+            tagTokens = form.removeTags.data.split(sep=",")
+            for tagToken in tagTokens:
+                if not tagToken: #ignore empty strings
+                    continue
+                group.removeTag(tagToken.strip())
+
+            db.session.commit()
+            return redirect(url_for('groups.showGroup', groupName=group.name))
+        else:
+            return 403
+    
+    return render_template("groups/addGroupTags.html", group=group, form=form)
+
 ### Commands ###
 @bp.cli.command("delete-all")
 def delete_all():
@@ -231,3 +319,44 @@ def create_group(name, visibility, is_open, owner_name):
         db.session.add(newGroup)
         db.session.commit()
         logging.info(f"Created group {name}")
+
+@bp.cli.command("add-member")
+@click.argument('group_name')
+@click.argument('username')
+def add_member(group_name, username):
+    group = Group.query.filter_by(name=group_name).first()
+    user = User.query.filter_by(username=username).first()
+
+    if user:
+        if group:
+            group.addMember(user)
+        else:
+            logging.error(f"Group {group_name} doesn't exist.")
+    else:
+        logging.error(f"User {username} doesn't exist.")
+
+@bp.cli.command("make-moderator")
+@click.argument('group_name')
+@click.argument('username')
+def make_moderator(group_name, username):
+    group = Group.query.filter_by(name=group_name).first()
+    user = User.query.filter_by(username=username).first()
+
+    if user:
+        if group:
+            group.addModerator(user)
+        else:
+            logging.error(f"Group {group_name} doesn't exist.")
+    else:
+        logging.error(f"User {username} doesn't exist.")
+
+@bp.cli.command("add-tag")
+@click.argument('group_name')
+@click.argument('keyword')
+def add_tag_to_group(group_name, keyword):
+    group = Group.query.filter_by(name=group_name).first()
+    if group:
+        logging.info(f"Adding tag {keyword} to group {group_name}")
+        group.addTag(keyword)
+    else:
+        logging.warning(f"Trying to add tag to nonexisting group: {group_name}")

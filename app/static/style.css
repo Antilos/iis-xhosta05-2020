@@ -1,22 +1,187 @@
+html {
+	height: 100%; 
+	background: url('trianglify.png') no-repeat center center fixed;
+	background-size: cover;
+    overflow-y: scroll; 
+}
+
+header{
+    box-sizing: border-box; 
+    position: relative;
+    background: url('trianglify.png') no-repeat center center fixed;
+    background-size: cover;
+	height: 150px;
+    min-width: 960px;
+}
+
+
+header h1 {
+    position: absolute;
+	text-shadow: 3px -3px 3px rgba(0,0,0,0.75);
+	z-index: 1;
+	display: inline-block;
+	top: 75px;
+	right: 40px;
+	margin: 0px;
+	color: #FFFFFF;
+    font-size: 4em;
+}
+
+header p {
+    position: absolute;
+	text-shadow: 3px -3px 3px rgba(255,50,50,0.2);
+	z-index: 1;
+	display: inline-block;
+	bottom: 20px;
+	left: 40px;
+	margin: 0px;
+	color: #ff0000;
+    font-size: 2em;
+}
+
+
+.top-nav{
+    overflow: hidden;
+    background-color: #333;
+    position: fixed;
+    top: 0;
+    width: 100%; 
+}
+
+.top-nav a{
+    float: left;
+    display: block;
+    color: #f2f2f2;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+.top-nav a:hover {
+    background: #ddd;
+    color: black;
+}
+
+.top-nav span{
+    float: right;
+    display: block;
+    color: #f2f2f2;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+
 .flex-container{
     display: flex;
+    background: url('trianglify.png') no-repeat center center fixed;
+    background-size: cover;
 }
 
-nav{
-    border-bottom-style: double;
-    margin: 10px;
-    background-color:silver;
+.flex-container .left-nav{
+    padding-right: 50px;
 }
 
-aside{
+.flex-container .left-nav a{
+    display: block;
+    color: #12aa19;
+    text-align: left;
+    padding: 7px 8px;
+    text-decoration: none;
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+.flex-container .left-nav a:hover{
+    color: #0a610f;
+}
+
+.flex-container .left-nav hr {
+    border-top: 3px solid #12aa19;
+}
+
+.flex-container .content h1{
+    display: block;
+    color: #12aa19;
+    text-align: left;
+    text-decoration: none;
+    font-size: 3em;
+    font-weight: bold;
+}
+
+.flex-container .content hr{
+    border-top: 3px solid #034e07;
+}
+
+.flex-container .content p {
+    display: block;
+    color: #1d8122;
+    text-align: left;
+    text-decoration: none;
+    font-size: 1.5em;
+}
+
+
+.flex-container .content h2{
+    display: block;
+    color: #1e8323;
+    text-align: left;
+    text-decoration: none;
+    font-size: 1.5m;
+    font-weight: bold;
+}
+
+.flex-container .content p a{
+    display: block;
+    color: #1d8122;
+    text-align: left;
+    text-decoration: none;
+    font-size: 1.5em;
+}
+
+.flex-container .content p a:hover{
+    color: #033305;
+}
+
+.flex-container .right-nav {
+    padding-left: 50px;
+}
+
+.flex-container .right-nav a{
+    display: block;
+    color: #96ec9b;
+    text-align: left;
+    padding: 7px 8px;
+    text-decoration: none;
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+.flex-container .right-nav a:hover{
+    color: #083d0a;
+}
+
+.post{
     border-style: solid;
-    width:auto;
-    margin: 10px;
-    background-color:silver;
+    border-color: #460202; 
+    border-width: 3px;
 }
 
-section.content{
-    width:auto;
-    margin: 10px;
-    background-color:white;
+#post.author{
+    display: block;
+    color: #13a81b;
+    text-align: left;
+    text-decoration: none;
+    font-size: 1.5m;
+}
+
+#post.body{
+    display: block;
+    color: #13a81b;
+    text-align: left;
+    text-decoration: none;
+    font-size: 1m;
+}
+
+#flex-container-for-posts #post.ranking{
+
 }

@@ -1,0 +1,151 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <title>Projekt IIS</title>
+    <style type="text/css">
+    	table { border-collapse: collapse; }
+    	td, th { border: 1px solid black; padding: 0.3em 0.5em; text-align: left; }
+    	dt { font-weight: bold; margin-top: 0.5em; }
+    </style>
+</head>
+<body>
+
+<!-- Zkontrolujte prosím nastavení kódování v hlavičce dokumentu 
+     podle použitého editoru -->
+
+<h1>Sociální síť: diskuse v diskusních skupinách</h1> <!-- Nahradte názvem svého zadání -->
+
+<dl>
+	<dt>Autoři</dt>
+	<dd>Kristína Hostačná <!-- Nahraďte skutečným jménem a e-mailem autora a popisem činnosti -->
+	    <a href="mailto:xhosta05@stud.fit.vutbr.cz">xhosta05@stud.fit.vutbr.cz</a> -
+		popis činnosti v týmu
+	</dd>
+	<dd>Juraj Sloboda <!-- Nahraďte skutečným jménem a e-mailem autora a popisem činnosti -->
+	    <a href="mailto:xslobo07@stud.fit.vutbr.cz">xslobo07@stud.fit.vutbr.cz</a> - 
+		popis činnosti v týmu
+	</dd>
+  <dd>Jakub Kočalka <!-- Nahraďte skutečným jménem a e-mailem autora a popisem činnosti -->
+	    <a href="mailto:xkocal00@stud.fit.vutbr.cz">xkocal00@stud.fit.vutbr.cz</a> - 
+		popis činnosti v týmu
+	</dd>
+	<dt>URL aplikace</dt>
+	<dd><a href="https://iis-xhosta05-2020.herokuapp.com/">https://iis-xhosta05-2020.herokuapp.com/</a></dd>
+	<!--<dd>(pokud má aplikace více vstupních stránek, napište obdobně další URL)</dd>-->
+</dl>
+
+<h2>Uživatelé systému pro testování</h2>
+<p>Uveďte prosím existující zástupce <strong>všech rolí uživatelů</strong>.</p>
+<table>
+<tr><th>Login</th><th>Heslo</th><th>Role</th></tr>
+<tr><td>admin</td><td>admin</td><td>Administrátor</td></tr>
+<tr><td>publicUser</td><td>user</td><td>Užívateľ s verejným profilom</td></tr>
+<tr><td>onlyRegisteredSeeMeUser</td><td>user</td><td>Užívateľ s profilom viditelným len pre registrovaných užívatelov</td></tr>
+<tr><td>privateUser</td><td>user</td><td>Užívateľ s profilom viditelným iba pre užívateľov v spoločnej skupine</td></tr>
+<tr><td>julia</td><td>user</td><td>Užívateľ s profilom viditelným iba pre užívateľov v spoločnej skupine</td></tr>
+</table>
+
+<p>(Diagram případů užití není nutné vkládat, pokud IS implementuje role a případy užití definované zadáním.)</p> 
+
+<h2>Implementace</h2>
+<p>Informačný systém je implementovaný pomocou frameworku <i>Flask</i>, ktorý využíva tzv. <i>Views</i>, čo sú finkcie volané pri dotaze na určité URL</p>
+
+<p>Ak nie je povedané inak, nasledujúce súbory sú v adresári app/routes/</p>
+<ul>
+	<li><h3>Správa užívatelov</h3></li>
+	<ul>
+		<li><b>Prihlásenie</b>: auth.py view <code>login()</code></li>
+		<li><b>Registrácia</b>: auth.py view <code>register()</code></li>
+		<li><b>Povíšenie užívatela na administrátora</b>: user.py cli príkaz <code>promote_to_admin(username)</code> (musí byť volaný z príkazového riadku v kontexte aplikácie (napr. <code>flask users promote-to-admin username</code>))</li>
+		<li><b>Zmazanie užívatela</b>: users.py view <code>adminDeleteUser(username)</code></li>
+	</ul>
+	
+	<li><h3>Profili užívateľov</h3></li>
+	<ul>
+		<li><b>Zobrazenie profilu užívateľa</b>: users.py view <code>userProfile(useranme)</code>. <br>
+			Prístup je zabezpečený funkciou <code>User.hasPermissionToViewUser(user)</code> in models.py
+		</li>
+		<li><b>ZObrazenie zoznamu užívateľov</b>: users.py view <code>showUsers()</code></li>
+		<li><b>Úprava profilu</b>: users.py view <code>editUserProfile()</code> a <code>changePassword()</code></li>
+	</ul>
+
+	<li><h3>Správa skupín</h3></li>
+	<ul>
+		<li><b>Založenie skupiny</b>: groups.py view <code>createGroup()</code></li>
+		<li><b>Pridanie sa do skupiny</b>: groups.py view <code>joinGroup(groupName)</code></li>
+		<li><b>Žiadosť o povýšenie na moderátora</b>: groups.py view <code>requestPromotionToModerator(groupName)</code></li>
+		<li><b>Zobrazenie žiadostí o prístup do skupiny</b>: groups.py view <code>showPendingJoinRequests(groupName)</code></li>
+		<li><b>Zobrazenie žiadostí o povýšenie na moderátora skupiny</b>: groups.py view <code>showPendingModeratorPromotionRequests(groupName)</code></li>
+		<li><b>Schválenie/zamietnutie žiadosti o prístup do skupiny</b>: groups.py view <code>approveJoinRequest(gruopsId, requestId)</code> resp. <code>denyJoinRequest(gruopsId, requestId)</code></li>
+		<li><b>Schválenie/zamietnutie žiadosti o povýšenie na moderátora skupiny</b>: groups.py view <code>approveModeratorPromotionRequest(groupId, requestId)</code> resp. <code>denyModeratorPromotionRequest(groupId, requestId)</code></li>
+	</ul>
+
+	<li><h3>Prehliadanie skupín</h3></li>
+	<ul>
+		<li><b>Zobrazenie zoznamu všetkých skupín</b>: groups.py view <code>showAllGroups()</code></li>
+		<li><b>Zobrazenie zoznamu skupín ktorých je užívateľ členom</b>: groups.py view <code>showJoinedGroups()</code></li>
+		<li><b>Zobrazenie zoznamu skupín s určitým kľúčovým slovom</b>: groups.py view <code>showTaggedGroups(tagKeyword)</code></li>
+		<br>
+		<li><b>Zobrazenie profilu skupiny</b>: groups.py view <code>showGroup(groupName)</code></li>
+		<li><b>Zobrazenie zoznamu členov skupiny</b>: groups.py view <code>showMembers(groupName)</code></li>
+	</ul>
+
+	<li><h3>Diskusia</h3></li>
+	<ul>
+		<li><b>Zobrazenie diskusného vlákna</b>: threads.py view <code>showThread(threadId)</code></li>
+		<li><b>Vytvorenie diskusného vlákna</b>: threads.py view <code>createThread(groupName)</code></li>
+		<li><b>Vytvorenie nového príspevku</b>: posts.py view <code>createPost(threadId)</code></li>
+		<li><b>Pozitívne hodnotenie príspevku</b>: posts.py view <code>upvotePost()</code></li>
+		<li><b>Negatívne hodnotenie príspevku</b>: posts.py view <code>downvotePost()</code></li>
+	</ul>
+</ul>
+
+<h3>Databáze</h3>
+<p>Aplikácia v produkčnom prostredí používa PostrgreSQL databázu na serveroch Heroku.</p>
+<p>Aplikácia samotná komunikuje s databázou pomocou ORM vytvoreného nástrojom <i>SQLAlchemy</i>.</p>
+<p> Migrácie databáz sú vytvorené nástrojom <i>Alembic</i></p>
+
+<img src="ERD.png" alt="ERD databáze">
+
+<h2>Instalace</h2>
+
+Stručně popište: 
+<ul>
+<li>postup instalace na server,</li>
+<li>softwarové požadavky (verze PHP apod.),</li>
+<li>jak rozbalit, konfigurovat, inicializovat databázi, ...</li>
+</ul>
+<ul>
+	<h3>Postup Inštalácie na Server</h3>
+	<li>Nastavte premenné prostredia:</li>
+	<ul>
+		<li><code><b>FLASK_APP</b>=iis-xhosta05-2020</code> : názov aplikácie pre flask.</li>
+		<li><code><b>FLASK_ENV</b>=production</code> : typ prostredia pre Flask</li>
+		<li><code><b>SECRET_KEY</b></code> : secret key.</li>
+		<li><code><b>APP_ENVIRONMENT</b>=production</code> : typ prostredia (production/development), ovplivňuje určité nastavenia, napr. logging level</li>
+		<li><code><b>DATABASE_URL</b></code> : url použitej databázy.</li>
+		<li><code><b>REMEMBER_COOKIE_DURATION</b></code> : Doba po ktorú sa bude udržiavať cookie o užívateľovi.</li>
+	</ul>
+	<li>Migrujte databázu pomocou nástroja Alembic</li>
+	<ol>
+		<li><code>flask db init</code> - Inicializuje podporu pre databázové migrácie. Tento príkaz je treba volať iba pred prvou migráciou.</li>
+		<li><code>flask db migrate</code> - Vytvorý migračný skrip automaticky z modelu definovaného v kóde</li>
+		<li><code>flask db upgrade</code> - Upgraduje databázu</li>
+	</ol>
+	<li><b>OPTIONAL</b>: spustite skript <code>fillAppWithDefaultData.py</code> ktorý naplní databázu testovacími dátami (napr. užívatelia uvedený viššie)</li>
+	<li>Spusťte aplikáciu pomocou príkazu <code>flask run</code></li>
+	<br>
+	<h3>Detaily pre Heroku</h3>
+	<p>
+		Aplikácie na Heroku využívajú tzv. Ephemeral Filesystem, čo znamená že úpravy súborov za behu aplikácie nemusia (a nebudú) permanentné.
+		Z tohto dôvodu je treba migračný skript pre databázu vytvoriť pred "pushnutím" aplikácie na heroku, a pri spustení aplikácie stačí vykonať upgrade.
+	</p>
+</ul>
+
+<h2>Známé problémy</h2>
+<p>Zde popište, které body zadání nejsou implementovány a z jakého důvodu. Např. &bdquo;Z časových důvodů nebyla implementována správa uživatelů.&rdquo; Pomůžete tím zrychlit hodnocení, když neimplementované funkce nebudeme muset dlouze hledat.</p>
+
+</body>
+</html>
