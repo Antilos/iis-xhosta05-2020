@@ -25,11 +25,13 @@ class RegisterForm(FlaskForm):
 
 class ProfileEditForm(FlaskForm):
     #profile description
-    description = TextAreaField('description')
+    description = CKEditorField('description')
 
     #profile visibility
     visibility = [(int(value), label) for label, value in Visibility.__members__.items()]
     profileVisibility = SelectField('Profile Visibility', choices=visibility)
+    addTags = TextAreaField('Add Tags to Follow')
+    removeTags = TextAreaField('Remove Tags You\'re Following')
 
     submitProfileEdit = SubmitField('Submit profile edit')
 
@@ -59,7 +61,7 @@ class CreateGroupForm(FlaskForm):
 
 class CreateThreadForm(FlaskForm):
     subject = StringField('Thread Subject', validators=[DataRequired(), Length(min=0, max=160)])
-    description = TextAreaField('Thread Description')
+    description = CKEditorField('Thread Description')
 
     submit = SubmitField('Create Thread')
 
@@ -72,3 +74,14 @@ class CreateCommentForm(FlaskForm):
     body = TextAreaField('Comment')
 
     submit = SubmitField('Comment')
+
+class ChangeGroupTagsForm(FlaskForm):
+    addTags = TextAreaField('Add Tags')
+    removeTags = TextAreaField('Remove Tags')
+    
+    submit = SubmitField('Add Tags')
+
+class SearchGroupsByTagsOrNameForm(FlaskForm):
+    searchBar = TextAreaField('Search by Names or Tags (separated by comma)')
+
+    submit = SubmitField('Search')

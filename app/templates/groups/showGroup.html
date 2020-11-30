@@ -3,7 +3,7 @@
 {% block app_content %}
     <h1>Group: {{group.name}}</h1>
 
-    <p>{{group.description}}</p>
+    <p>{{group.description|safe}}</p>
 
     <hr>
 
@@ -33,8 +33,9 @@
             {% endif %}
 
             {% if current_user.isModeratorOf(group) %}
-                <a href="{{url_for('groups.showPendingJoinRequests', groupName=group.name)}}">Pending Join Requests</a><br>
-                <a href="{{url_for('groups.showPendingModeratorPromotionRequests', groupName=group.name)}}">Pending Moderator Promotion Requests</a><br>
+                <a href="{{url_for('groups.showPendingJoinRequests', groupName=group.name)}}">Pending Join Requests</a>
+                <a href="{{url_for('groups.showPendingModeratorPromotionRequests', groupName=group.name)}}">Pending Moderator Promotion Requests</a>
+                <a href="{{url_for('groups.changeTags', groupId=group.id)}}">Change Tags</a>
             {% endif %}
         {% endif %}
 {%endblock%}

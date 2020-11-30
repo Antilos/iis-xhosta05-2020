@@ -5,7 +5,7 @@ import logging
 
 from app.models import User, Group, Thread, Post, Group_Join_Request, Group_Moderator_Promotion_Request, Tag
 from app import db
-from app.forms import CreateGroupForm
+from app.forms import CreateGroupForm, ChangeGroupTagsForm, SearchGroupsByTagsOrNameForm
 from app.enums import JoinPermission, RequestStatus
 
 bp = Blueprint('groups', __name__, url_prefix="/groups")
@@ -13,7 +13,7 @@ bp = Blueprint('groups', __name__, url_prefix="/groups")
 @bp.route('/showMyGroups')
 @login_required
 def showJoinedGroups():
-    groups = current_user.joined_groups.all() + current_user.owned_groups.all()
+    groups = current_user.joined_groups.all()
     return render_template("groups/joinedGroups.html", title="My Groups", groups=groups)
 
 @bp.route('/allGroups')
@@ -29,6 +29,32 @@ def showTaggedGroups(tagKeyword):
     else:
         taggedGroups = []
     return render_template("groups/showGroupsByTags.html", title=f"Groups Tagged with {tagKeyword}", taggedGroups=taggedGroups)
+
+@bp.route('/explore', methods=["GET", "POST"])
+def exploreGroups():
+    form = SearchGroupsByTagsOrNameForm()
+
+    groups = set()
+    if form.validate_on_submit():
+        keywords = form.searchBar.data.split(",")
+        for keyword in map(str.strip,keywords):
+            #add all groups named keyword
+            namedGroup = Group.query.filter_by(name=keyword).first()
+            if namedGroup:
+                groups.add(namedGroup)
+
+            #add all groups tagged keyword
+            tag = Tag.query.filter_by(keyword=keyword).first()
+            if tag:
+                for taggedGroup in tag.tagged_groups:
+                    groups.add(taggedGroup)
+        
+        logging.debug(f"Found Groups are: {[group.name for group in groups]}")
+    else:
+        groups = Group.query.all()
+
+    logging.debug(f"Going to render groups: {groups}")
+    return render_template("groups/exploreGroups.html", groups=groups, form=form)
 
 @bp.route('/createGroup', methods=["GET","POST"])
 @login_required
@@ -51,7 +77,9 @@ def createGroup():
         #add tags
         tagTokens = form.tags.data.split(sep=",")
         for tagToken in tagTokens:
-            group.addTag(tagToken)
+            if not tagToken: #ignore empty strings
+                continue
+            group.addTag(tagToken.strip())
 
         db.session.add(group)
         db.session.commit()
@@ -217,6 +245,38 @@ def denyModeratorPromotionRequest(groupId, requestId):
     else:
         return Response(status=403)
 
+@bp.route('<groupId>/addTags', methods=["GET","POST"])
+@login_required
+def changeTags(groupId):
+    form = ChangeGroupTagsForm()
+    #get group
+    group = Group.query.filter_by(id=groupId).first_or_404()
+
+    if form.validate_on_submit():
+
+        #check permmisions
+        if current_user.isModeratorOf(group):
+            #add tags
+            tagTokens = form.addTags.data.split(sep=",")
+            for tagToken in tagTokens:
+                if not tagToken: #ignore empty strings
+                    continue
+                group.addTag(tagToken.strip())
+            
+            #remove tags
+            tagTokens = form.removeTags.data.split(sep=",")
+            for tagToken in tagTokens:
+                if not tagToken: #ignore empty strings
+                    continue
+                group.removeTag(tagToken.strip())
+
+            db.session.commit()
+            return redirect(url_for('groups.showGroup', groupName=group.name))
+        else:
+            return 403
+    
+    return render_template("groups/addGroupTags.html", group=group, form=form)
+
 ### Commands ###
 @bp.cli.command("delete-all")
 def delete_all():
@@ -247,3 +307,14 @@ def create_group(name, visibility, is_open, owner_name):
         db.session.add(newGroup)
         db.session.commit()
         logging.info(f"Created group {name}")
+
+@bp.cli.command("add-tag")
+@click.argument('group_name')
+@click.argument('keyword')
+def add_tag_to_group(groupName):
+    group = Group.query.filter_by(name=groupName).first()
+    if group:
+        logging.info(f"Adding tag {keyword} to group {groupName}")
+        group.addTag(keyword)
+    else:
+        logging.warning(f"Trying to add tag to nonexisting group: {groupName}")

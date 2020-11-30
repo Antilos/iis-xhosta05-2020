@@ -4,16 +4,17 @@ import subprocess
 Users = [
     #[name, password, profile_vis]
     ["admin", "admin", "0"],
-    ["test1", "test", "0"],
-    ["test2", "test", "1"],
-    ["test3", "test", "3"]
+    ["oliver", "test", "0"],
+    ["eva", "test", "1"],
+    ["liam", "test", "3"]
+    ["ema", "test", "3"]
 ]
 
 Groups = [
     #[name, visibility, isOpen, ownerName]
-    ["publicGroup", "0", "True", "admin"],
-    ["registeredGroup", "1", "True", "admin"],
-    ["privateGroup", "3", "True", "admin"],
+    ["PublicGroup", "0", "True", "admin"],
+    ["OnlyRegisteredGroup", "1", "True", "admin"],
+    ["PrivateGroup", "3", "False", "admin"],
 ]
 
 Threads = [
@@ -22,6 +23,14 @@ Threads = [
 
 Posts = [
     #[authorName, threadName, body]
+]
+
+TagsToUsers = [
+    #[username, keyword]
+]
+
+TagsToGroups = [
+    #[groupName, keyword]
 ]
 
 #empty database
@@ -44,3 +53,9 @@ for thread in Threads:
 
 for post in Posts:
     subprocess.run(["flask", "posts", "create"] + post)
+
+for tag in TagsToGroups:
+    subprocess.run(["flask", "groups", "add-tag"] + tag)
+
+for tag in TagsToUsers:
+    subprocess.run(["flask", "users", "add-tag"] + tag)
