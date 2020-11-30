@@ -7,7 +7,7 @@ Users = [
     ["publicUser", "user", "0"],
     ["onlyRegisteredSeeMeUser", "user", "1"],
     ["privateUser", "user", "3"]
-    ["eva", "user", "3"]
+    ["ema", "user", "3"]
 ]
 
 Groups = [
@@ -15,44 +15,44 @@ Groups = [
     ["PublicGroup", "0", "True", "admin"],
     ["OnlyRegisteredGroup", "1", "True", "admin"],
     ["PrivateGroup", "3", "False", "admin"],
-    ["publicgroup2","0","True","oliver"],
-    ["onlyregisteregroup2","1","True","julia"],
-    ["privategroup2","3","False","ema"]
+    ["publicgroup2","0","True","publicUser"],
+    ["onlyregisteregroup2","1","True","onlyRegisteredSeeMeUser"],
+    ["privategroup2","3","False","privateUser"]
 ]
 
 Threads = [
     #[subject, openerName, groupName]
-    ["toniejejulia","ema","privategroup2"],
-    ["somerandomthread","ema","PublicGroup"],
-    ["otherranomthread","julia","PublicGroup"],
+    ["toniejejulia","privateUser","privategroup2"],
+    ["somerandomthread","privateUser","PublicGroup"],
+    ["otherranomthread","onlyRegisteredSeeMeUser","PublicGroup"],
     ["neadlismeITUcoteraz?","admin","OnlyRegisteredGroup"],
     ["aniterazneameITU","admin","OnlyRegisteredGroup"],
-    ["Idemenapivo","julia","publicgroup2"],
-    ["......","oliver","publicgroup2"]
+    ["Idemenapivo","onlyRegisteredSeeMeUser","publicgroup2"],
+    ["......","publicUser","publicgroup2"]
 ]
 
 Posts = [
     #[authorName, groupName, threadName, body]
-    ["ema","publicgroup2","Idemenapivo","Ideme na pivo otvaraju krcmy"],
-    ["oliver","publicgroup2","Idemenapivo","okej kedy?"],
-    ["ema","publicgroup2","Idemenapivo","15.1. kto chcete pridadjte sa"],
-    ["oliver","publicgroup2","Idemenapivo","to mam byt dodvtedy triezvy?"],
-    ["ema","publicgroup2","Idemenapivo","...."],
-    ["julia","publicgroup2","Idemenapivo","...."],
+    ["privateUser","publicgroup2","Idemenapivo","Ideme na pivo otvaraju krcmy"],
+    ["publicUser","publicgroup2","Idemenapivo","okej kedy?"],
+    ["privateUser","publicgroup2","Idemenapivo","15.1. kto chcete pridadjte sa"],
+    ["publicUser","publicgroup2","Idemenapivo","to mam byt dodvtedy triezvy?"],
+    ["privateUser","publicgroup2","Idemenapivo","...."],
+    ["onlyRegisteredSeeMeUser","publicgroup2","Idemenapivo","...."],
     ["admin","OnlyRegisteredGroup", "neadlismeITUcoteraz?", "minuly rok sme neadli ITU preto nas projekt na iis vyzera neintuitivne, sorry"],
     ["admin","OnlyRegisteredGroup", "aniterazneameITU", "tento rok  snad dame ITU a ked nie tak budeme asi jediny co vypadnu s fitu vdaka ITU :D"],
-    ["julia","OnlyRegisteredGroup", "aniterazneameITU", "gl boyz"],
+    ["onlyRegisteredSeeMeUser","OnlyRegisteredGroup", "aniterazneameITU", "gl boyz"],
     ["admin","PublicGroup","somerandomthread","sdadsdaadsads" ],
-    ["julia","PublicGroup","somerandomthread","sdadsdaadsads" ],
-    ["ema","PublicGroup","somerandomthread","sdadsdaadsads" ],
-    ["oliver","PublicGroup","somerandomthread","sdadsdaadsads" ],
-    ["julia","PublicGroup","somerandomthread","sdadsdaadsads" ],
-    ["julia","PublicGroup","otherranomthread","sdadsdaddadssdadddqwwdsadadasdsdadd" ],
-    ["ema","PublicGroup","otherranomthread","sdadsdaddadssdadddqwwdsadadasdsdadd" ],
-    ["oliver","PublicGroup","otherranomthread","sdadsdaddadssdewqeaacsdvdadddqwwdsadadasdsdadd" ],
+    ["onlyRegisteredSeeMeUser","PublicGroup","somerandomthread","sdadsdaadsads" ],
+    ["privateUser","PublicGroup","somerandomthread","sdadsdaadsads" ],
+    ["publicUser","PublicGroup","somerandomthread","sdadsdaadsads" ],
+    ["onlyRegisteredSeeMeUser","PublicGroup","somerandomthread","sdadsdaadsads" ],
+    ["onlyRegisteredSeeMeUser","PublicGroup","otherranomthread","sdadsdaddadssdadddqwwdsadadasdsdadd" ],
+    ["privateUser","PublicGroup","otherranomthread","sdadsdaddadssdadddqwwdsadadasdsdadd" ],
+    ["publicUser","PublicGroup","otherranomthread","sdadsdaddadssdewqeaacsdvdadddqwwdsadadasdsdadd" ],
     ["admin","PublicGroup","otherranomthread","sdadsdaddadssdaweqeqwdddqwwdsadadasdsdadd" ],
-    ["oliver","PublicGroup","otherranomthread","sdadsdaddadssddsadddsdaddadddqwwdsadadasdsdadd" ],
-    ["oliver","PublicGroup","otherranomthread","sdadsdaddadssdadewqewqeqwddqwwdsadadasdsdadd" ],
+    ["publicUser","PublicGroup","otherranomthread","sdadsdaddadssddsadddsdaddadddqwwdsadadasdsdadd" ],
+    ["publicUser","PublicGroup","otherranomthread","sdadsdaddadssdadewqewqeqwddqwwdsadadasdsdadd" ],
 ]
 
 TagsToUsers = [
@@ -77,6 +77,14 @@ TagsToGroups = [
     ["privategroup2","mozno"],
     ["privategroup2","ano"]
 
+]
+
+addMembers = [
+    #[group_name, username]
+]
+
+addModerators = [
+    #[group_name, username]
 ]
 
 #empty database
@@ -105,3 +113,10 @@ for tag in TagsToGroups:
 
 for tag in TagsToUsers:
     subprocess.run(["flask", "users", "add-tag"] + tag)
+
+for member in addMembers:
+    subprocess.run(["flask", "groups", "add-member"] + member)
+
+for moderator in addModerators:
+    subprocess.run(["flask", "groups", "add-moderator"] + moderator)
+
