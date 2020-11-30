@@ -63,22 +63,27 @@ def delete_all():
 
 @bp.cli.command("create")
 @click.argument('author_name')
+@click.argument('group_name')
 @click.argument('thread_name')
 @click.argument('body')
-def create_post(author_name, thread_name, body):
+def create_post(author_name, group_name, thread_name, body):
     author = User.query.filter_by(username=author_name).first()
-    thread = Thread.query.filter_by(subject=thread_name).first()
-    if not author:
-        logging.error(f"User {author_name} doesn't exist.")
-    elif not thread:
-        logging.error(f"Thread {thread_name} doesn't exist.")
+    group = Group.query.filter_by(name=group_name).first()
+    if not group:
+        logging.error(f"Group {group_name} doesn't exist.")
     else:
-        newPost = Post(
-            body=body,author=author,thread=thread
-        )
-        db.session.add(newPost)
-        db.session.commit()
-        if len(post) > 10:
-            logging.info(f"Created post \"{body[:10]}...\"")
+        thread = group.threads.query.filter_by(subject=thread_name).first()
+        if not author:
+            logging.error(f"User {author_name} doesn't exist.")
+        elif not thread:
+            logging.error(f"Thread {thread_name} doesn't exist.")
         else:
-            logging.info(f"Created post \"{body}\"")
+            newPost = Post(
+                body=body,author=author,thread=thread
+            )
+            db.session.add(newPost)
+            db.session.commit()
+            if len(post) > 10:
+                logging.info(f"Created post \"{body[:10]}...\"")
+            else:
+                logging.info(f"Created post \"{body}\"")
