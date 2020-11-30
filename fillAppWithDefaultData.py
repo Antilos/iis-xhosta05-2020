@@ -4,10 +4,10 @@ import subprocess
 Users = [
     #[name, password, profile_vis]
     ["admin", "admin", "0"],
-    ["oliver", "test", "0"],
-    ["eva", "test", "1"],
-    ["liam", "test", "3"]
-    ["ema", "test", "3"]
+    ["publicUser", "user", "0"],
+    ["onlyRegisteredSeeMeUser", "user", "1"],
+    ["privateUser", "user", "3"]
+    ["eva", "user", "3"]
 ]
 
 Groups = [

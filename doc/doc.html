@@ -41,8 +41,10 @@
 <table>
 <tr><th>Login</th><th>Heslo</th><th>Role</th></tr>
 <tr><td>admin</td><td>admin</td><td>Administrátor</td></tr>
-<tr><td>prodavac</td><td>prodavac</td><td>Prodavač</td></tr>
-<tr><td>franta</td><td>franta</td><td>Zákazník</td></tr>
+<tr><td>publicUser</td><td>user</td><td>Užívateľ s verejným profilom</td></tr>
+<tr><td>onlyRegisteredSeeMeUser</td><td>user</td><td>Užívateľ s profilom viditelným len pre registrovaných užívatelov</td></tr>
+<tr><td>privateUser</td><td>user</td><td>Užívateľ s profilom viditelným iba pre užívateľov v spoločnej skupine</td></tr>
+<tr><td>julia</td><td>user</td><td>Užívateľ s profilom viditelným iba pre užívateľov v spoločnej skupine</td></tr>
 </table>
 
 <p>(Diagram případů užití není nutné vkládat, pokud IS implementuje role a případy užití definované zadáním.)</p> 
@@ -132,6 +134,7 @@ Stručně popište:
 		<li><code>flask db migrate</code> - Vytvorý migračný skrip automaticky z modelu definovaného v kóde</li>
 		<li><code>flask db upgrade</code> - Upgraduje databázu</li>
 	</ol>
+	<li><b>OPTIONAL</b>: spustite skript <code>fillAppWithDefaultData.py</code> ktorý naplní databázu testovacími dátami (napr. užívatelia uvedený viššie)</li>
 	<li>Spusťte aplikáciu pomocou príkazu <code>flask run</code></li>
 	<br>
 	<h3>Detaily pre Heroku</h3>
