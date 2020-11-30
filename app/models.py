@@ -251,6 +251,9 @@ class Group(db.Model):
         if not self.isModerator(user):
             self.moderators.append(user)
 
+    def isOwner(self, user):
+        return self.owner_id == user.id
+
     def removeModerator(self, user):
         if self.isModerator(user):
             self.moderators.remove(user)

@@ -116,15 +116,21 @@ def showMembers(groupName):
 
     #verify current user has permission to view this group
     if current_user.hasPermissionToViewGroup(group):
-        #TODO
-        print(group.members.all())
         members = group.members.paginate(page, membersPerPage, False)
-        print(members.items)
         nextUrl = url_for('groups.showMembers', groupName=groupName, page=members.next_num) if members.has_next else None
         prevUrl = url_for('groups.showMembers', groupName=groupName, page=members.prev_num) if members.has_prev else None
         return render_template("groups/showMembers.html", title=f"Members of {groupName}", members=members.items, group=group)
     else:
         return render_template('groups/unauthorizedGroupView.html', title="Unauthorized Group View", group=group)
+
+@bp.route('/<groupId>/remove/<userId>')
+@login_required
+def removeMember(groupId, userId):
+    group = Group.query.filter_by(id=groupId).first_or_404()
+
+    if group.isOwner(current_user):
+        user = User.query.filter_by(id=userId).first_or_404()
+        group.removeMember(user)
 
 @bp.route('/<groupName>/join')
 @login_required
