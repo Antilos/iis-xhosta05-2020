@@ -308,6 +308,36 @@ def create_group(name, visibility, is_open, owner_name):
         db.session.commit()
         logging.info(f"Created group {name}")
 
+@bp.cli.command("add-member")
+@click.argument('group_name')
+@click.argument('username')
+def add_member(group_name, username):
+    group = Group.query.filter_by(name=group_name).first()
+    user = User.query.filter_by(username=username).first()
+
+    if user:
+        if group:
+            group.addMember(user)
+        else:
+            logging.error(f"Group {group_name} doesn't exist.")
+    else:
+        logging.error(f"User {username} doesn't exist.")
+
+@bp.cli.command("make-moderator")
+@click.argument('group_name')
+@click.argument('username')
+def make_moderator(group_name, username):
+    group = Group.query.filter_by(name=group_name).first()
+    user = User.query.filter_by(username=username).first()
+
+    if user:
+        if group:
+            group.addModerator(user)
+        else:
+            logging.error(f"Group {group_name} doesn't exist.")
+    else:
+        logging.error(f"User {username} doesn't exist.")
+
 @bp.cli.command("add-tag")
 @click.argument('group_name')
 @click.argument('keyword')
