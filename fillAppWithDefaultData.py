@@ -81,10 +81,23 @@ TagsToGroups = [
 
 addMembers = [
     #[group_name, username]
+    ["PublicGroup","onlyRegisteredSeeMeUser"],
+    ["PublicGroup","privateUser"],
+    ["OnlyRegisteredGroup","ema"],7
+    ["PrivateGroup","ema"],
+    ["PrivateGroup","onlyRegisteredSeeMeUser"],
+    ["onlyregisteregroup2","onlyRegisteredSeeMeUser"],
+    ["onlyregisteregroup2","admin"],
+    ["privategroup2","admin"],
+    ["privategroup2","ema"]
 ]
 
 addModerators = [
     #[group_name, username]
+    ["PublicGroup","onlyRegisteredSeeMeUser"],
+    ["PrivateGroup","ema"],
+    ["onlyregisteregroup2","admin"],
+    ["privategroup2","admin"]
 ]
 
 #empty database
