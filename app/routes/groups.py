@@ -131,6 +131,12 @@ def removeMember(groupId, userId):
     if group.isOwner(current_user):
         user = User.query.filter_by(id=userId).first_or_404()
         group.removeMember(user)
+        logging.info(f"{current_user.username} removed user {user.username} from group {group.name}.")
+        db.session.commit()
+        return redirect(url_for('groups.showMembers', groupName=group.name))
+    else:
+        logging.info(f"{current_user.username} removed user {user.username} from group {group.name}.")
+        return Response(response=403)
 
 @bp.route('/<groupName>/join')
 @login_required
@@ -347,10 +353,10 @@ def make_moderator(group_name, username):
 @bp.cli.command("add-tag")
 @click.argument('group_name')
 @click.argument('keyword')
-def add_tag_to_group(groupName):
-    group = Group.query.filter_by(name=groupName).first()
+def add_tag_to_group(group_name, keyword):
+    group = Group.query.filter_by(name=group_name).first()
     if group:
-        logging.info(f"Adding tag {keyword} to group {groupName}")
+        logging.info(f"Adding tag {keyword} to group {group_name}")
         group.addTag(keyword)
     else:
-        logging.warning(f"Trying to add tag to nonexisting group: {groupName}")
+        logging.warning(f"Trying to add tag to nonexisting group: {group_name}")

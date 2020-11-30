@@ -72,7 +72,7 @@ def create_post(author_name, group_name, thread_name, body):
     if not group:
         logging.error(f"Group {group_name} doesn't exist.")
     else:
-        thread = group.threads.query.filter_by(subject=thread_name).first()
+        thread = group.threads.filter_by(subject=thread_name).first()
         if not author:
             logging.error(f"User {author_name} doesn't exist.")
         elif not thread:
@@ -83,7 +83,7 @@ def create_post(author_name, group_name, thread_name, body):
             )
             db.session.add(newPost)
             db.session.commit()
-            if len(post) > 10:
+            if len(body) > 10:
                 logging.info(f"Created post \"{body[:10]}...\"")
             else:
                 logging.info(f"Created post \"{body}\"")

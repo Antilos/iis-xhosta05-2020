@@ -131,5 +131,5 @@ for member in addMembers:
     subprocess.run(["flask", "groups", "add-member"] + member)
 
 for moderator in addModerators:
-    subprocess.run(["flask", "groups", "add-moderator"] + moderator)
+    subprocess.run(["flask", "groups", "make-moderator"] + moderator)
 
