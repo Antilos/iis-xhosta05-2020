@@ -25,6 +25,14 @@ Posts = [
     #[authorName, threadName, body]
 ]
 
+TagsToUsers = [
+    #[username, keyword]
+]
+
+TagsToGroups = [
+    #[groupName, keyword]
+]
+
 #empty database
 subprocess.run(["flask", "users", "delete-all"])
 subprocess.run(["flask", "groups", "delete-all"])
@@ -45,3 +53,9 @@ for thread in Threads:
 
 for post in Posts:
     subprocess.run(["flask", "posts", "create"] + post)
+
+for tag in TagsToGroups:
+    subprocess.run(["flask", "groups", "add-tag"] + tag)
+
+for tag in TagsToUsers:
+    subprocess.run(["flask", "users", "add-tag"] + tag)

@@ -145,3 +145,14 @@ def create_user(username, password, profile_visibility):
         db.session.add(newUser)
         db.session.commit()
         logging.info(f"Created user {username}")
+
+@bp.cli.command("add-tag")
+@click.argument('group_name')
+@click.argument('keyword')
+def add_tag_to_user(groupName):
+    user = User.query.filter_by(username=username).first()
+    if user:
+        logging.info(f"Adding tag {keyword} to group {username}")
+        user.addTag(keyword)
+    else:
+        logging.warning(f"Trying to add tag to nonexisting user: {username}")

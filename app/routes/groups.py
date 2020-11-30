@@ -307,3 +307,14 @@ def create_group(name, visibility, is_open, owner_name):
         db.session.add(newGroup)
         db.session.commit()
         logging.info(f"Created group {name}")
+
+@bp.cli.command("add-tag")
+@click.argument('group_name')
+@click.argument('keyword')
+def add_tag_to_group(groupName):
+    group = Group.query.filter_by(name=groupName).first()
+    if group:
+        logging.info(f"Adding tag {keyword} to group {groupName}")
+        group.addTag(keyword)
+    else:
+        logging.warning(f"Trying to add tag to nonexisting group: {groupName}")
